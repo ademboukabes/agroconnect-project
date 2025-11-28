@@ -1,14 +1,4 @@
-import jwt from 'jsonwebtoken';
-import User from '../users/user.model.js';
-
-// Helper function to generate JWT token
-const generateToken = (userId) => {
-    return jwt.sign(
-        { id: userId },
-        process.env.JWT_SECRET || 'votre_secret_jwt_temporaire',
-        { expiresIn: process.env.JWT_EXPIRE || '30d' }
-    );
-};
+import { registerUser, loginUser, getUserById } from './auth.service.js';
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -25,44 +15,19 @@ export const register = async (req, res) => {
             });
         }
 
-        // Check if user exists
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({
-                success: false,
-                message: 'Cet email est déjà utilisé'
-            });
-        }
-
-        // Create user (password hashing is handled in User model pre-save hook)
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role: role || 'user'
-        });
-
-        // Generate token
-        const token = generateToken(user._id);
+        // Register user using service
+        const result = await registerUser({ name, email, password, role });
 
         res.status(201).json({
             success: true,
             message: 'Utilisateur créé avec succès',
-            data: {
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role
-                },
-                token
-            }
+            data: result
         });
     } catch (error) {
         console.error('Erreur lors de l\'inscription:', error);
         res.status(500).json({
             success: false,
-            message: 'Erreur serveur lors de l\'inscription'
+            message: error.message || 'Erreur serveur lors de l\'inscription'
         });
     }
 };
@@ -82,45 +47,23 @@ export const login = async (req, res) => {
             });
         }
 
-        // Check for user
-        const user = await User.findOne({ email }).select('+password');
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Email ou mot de passe incorrect'
-            });
-        }
-
-        // Check password
-        const isPasswordMatch = await user.matchPassword(password);
-        if (!isPasswordMatch) {
-            return res.status(401).json({
-                success: false,
-                message: 'Email ou mot de passe incorrect'
-            });
-        }
-
-        // Generate token
-        const token = generateToken(user._id);
+        // Login user using service
+        const result = await loginUser(email, password);
 
         res.status(200).json({
             success: true,
             message: 'Connexion réussie',
-            data: {
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role
-                },
-                token
-            }
+            data: result
         });
     } catch (error) {
         console.error('Erreur lors de la connexion:', error);
-        res.status(500).json({
+
+        // Return 401 for authentication errors
+        const statusCode = error.message.includes('incorrect') ? 401 : 500;
+
+        res.status(statusCode).json({
             success: false,
-            message: 'Erreur serveur lors de la connexion'
+            message: error.message || 'Erreur serveur lors de la connexion'
         });
     }
 };
@@ -130,8 +73,8 @@ export const login = async (req, res) => {
 // @access  Private
 export const getMe = async (req, res) => {
     try {
-        // req.user is set by auth middleware (to be implemented)
-        const user = await User.findById(req.user.id);
+        // req.user is set by auth middleware
+        const user = await getUserById(req.user.id);
 
         res.status(200).json({
             success: true,
@@ -148,7 +91,7 @@ export const getMe = async (req, res) => {
         console.error('Erreur lors de la récupération de l\'utilisateur:', error);
         res.status(500).json({
             success: false,
-            message: 'Erreur serveur'
+            message: error.message || 'Erreur serveur'
         });
     }
 };

@@ -26,10 +26,49 @@ const userSchema = new mongoose.Schema({
         enum: ["user", "transporter", "admin"],
         default: "user",
     },
+    phone: {
+        type: String,
+        match: [/^[0-9]{10}$/, "Veuillez ajouter un numéro de téléphone valide (10 chiffres)"],
+    },
+    address: {
+        street: String,
+        city: String,
+        wilaya: String,
+        postalCode: String,
+    },
+    // Profil Client (agriculteur)
+    clientProfile: {
+        name: String,
+        businessType: {
+            type: String,
+            enum: ["agriculteur", "coopérative", "entreprise", "autre"],
+        },
+    },
+    // Profil Transporteur
+    transporterProfile: {
+        name: String,
+        licenseNumber: String,
+        rating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5,
+        },
+        totalDeliveries: {
+            type: Number,
+            default: 0,
+        },
+        isAvailable: {
+            type: Boolean,
+            default: true,
+        },
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
+}, {
+    timestamps: true,
 });
 
 // Encrypt password using bcrypt
