@@ -5,6 +5,7 @@ import userRoutes from './modules/users/user.routes.js';
 import vehicleRoutes from './modules/transport/transport.routes.js';
 import shipmentRoutes from './modules/shipments/shipment.routes.js';
 import trackingRoutes from './modules/tracking/tracking.routes.js';
+import ratingRoutes from './modules/ratings/rating.routes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/shipments', shipmentRoutes);
 app.use('/api/tracking', trackingRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // Health Check
 app.get('/', (req, res) => {

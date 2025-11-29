@@ -36,9 +36,6 @@ const ShipmentDetails = () => {
 
     const handleAccept = async () => {
         try {
-            // Pour simplifier, on prend le premier véhicule dispo ou on demande à l'utilisateur
-            // Ici on hardcode un ID de véhicule pour la démo si nécessaire, ou on demande de sélectionner
-            // Idéalement : ouvrir une modale pour choisir le véhicule
             const vehiclesRes = await api.get('/vehicles');
             const vehicles = vehiclesRes.data.data.vehicles;
 
@@ -84,7 +81,6 @@ const ShipmentDetails = () => {
                     speed: 60 + Math.random() * 20,
                     heading: 45
                 });
-                // Attendre 2 secondes entre chaque point
                 await new Promise(r => setTimeout(r, 2000));
             } catch (err) {
                 console.error('Erreur simulation', err);
@@ -182,6 +178,72 @@ const ShipmentDetails = () => {
                     </dl>
                 </div>
             </div>
+
+            {/* Information Transporteur (Visible pour le client) */}
+            {isClient && shipment.transporter && (
+                <div className="bg-white shadow sm:rounded-lg p-6 border-l-4 border-primary">
+                    <h3 className="text-lg font-medium text-gray-900 mb-6 flex items-center border-b pb-2">
+                        <Truck className="h-5 w-5 mr-2 text-primary" />
+                        Transporteur Assigné
+                    </h3>
+
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+                        {/* Infos Personnelles */}
+                        <div className="flex-1 space-y-3">
+                            <div className="flex items-center gap-3">
+                                <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-600">
+                                    {shipment.transporter.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p className="text-xl font-bold text-gray-900">{shipment.transporter.name}</p>
+                                    <p className="text-sm text-gray-500 flex items-center gap-1">
+                                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                        Vérifié
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 bg-gray-50 p-4 rounded-lg">
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase">Téléphone</p>
+                                    <p className="font-medium">{shipment.transporter.phone}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase">Permis / Licence</p>
+                                    <p className="font-medium">{shipment.transporter.transporterProfile?.licenseNumber || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase">Véhicule</p>
+                                    <p className="font-medium">{shipment.vehicle?.vehicleType || 'Camion'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase">Matricule</p>
+                                    <p className="font-medium">{shipment.vehicle?.licensePlate || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Score IA */}
+                        {shipment.transporter.transporterProfile?.aiRating && (
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100 min-w-[200px] text-center">
+                                <div className="text-xs uppercase tracking-wide text-blue-600 font-semibold mb-1">
+                                    Fiabilité IA
+                                </div>
+                                <div className="text-4xl font-bold text-primary mb-1">
+                                    {shipment.transporter.transporterProfile.aiRating.score}
+                                    <span className="text-lg text-gray-400 font-normal">/100</span>
+                                </div>
+                                <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-white text-primary shadow-sm">
+                                    {shipment.transporter.transporterProfile.aiRating.category}
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Basé sur {shipment.transporter.transporterProfile.aiRating.totalTripsAnalyzed} trajets
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Actions Transporteur */}
             {isTransporter && (

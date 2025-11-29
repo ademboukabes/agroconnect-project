@@ -5,7 +5,7 @@ import { registerUser, loginUser, getUserById } from './auth.service.js';
 // @access  Public
 export const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, phone, licenseNumber, licenseType } = req.body;
 
         // Validation
         if (!name || !email || !password) {
@@ -15,8 +15,24 @@ export const register = async (req, res) => {
             });
         }
 
+        // Prepare user data
+        const userData = {
+            name,
+            email,
+            password,
+            role,
+            phone
+        };
+
+        if (role === 'transporter') {
+            userData.transporterProfile = {
+                licenseNumber,
+                licenseType
+            };
+        }
+
         // Register user using service
-        const result = await registerUser({ name, email, password, role });
+        const result = await registerUser(userData);
 
         res.status(201).json({
             success: true,

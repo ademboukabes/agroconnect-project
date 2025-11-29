@@ -1,19 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Truck, MapPin, CheckCircle } from 'lucide-react';
+import DriverRating from './DriverRating';
 
 const TransporterDashboard = () => {
+    const { user } = useAuth();
     const [availableShipments, setAvailableShipments] = useState([]);
     const [myDeliveries, setMyDeliveries] = useState([]);
+    const [ratingData, setRatingData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [availableRes, myRes] = await Promise.all([
+                const [availableRes, myRes, ratingRes] = await Promise.all([
                     api.get('/shipments/available'),
-                    api.get('/shipments/my-deliveries')
+                    api.get('/shipments/my-deliveries'),
+                    api.get(`/ratings/driver/${user._id}`)
                 ]);
 
                 if (availableRes.data.success) {
@@ -22,6 +27,9 @@ const TransporterDashboard = () => {
                 if (myRes.data.success) {
                     setMyDeliveries(myRes.data.data.shipments);
                 }
+                if (ratingRes.data.success) {
+                    setRatingData(ratingRes.data.data.aiRating);
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -29,11 +37,19 @@ const TransporterDashboard = () => {
             }
         };
 
-        fetchData();
-    }, []);
+        if (user?._id) {
+            fetchData();
+        }
+    }, [user]);
 
     return (
         <div className="space-y-8">
+            {/* Section Rating IA */}
+            <div className="bg-white p-6 rounded-lg shadow">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Ma Performance IA</h2>
+                <DriverRating aiRating={ratingData} />
+            </div>
+
             {/* Section Véhicules (Résumé) */}
             <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex justify-between items-center mb-4">

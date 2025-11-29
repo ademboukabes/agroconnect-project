@@ -1,0 +1,7 @@
+node_modules
+.env
+.DS_Store
+Ai_agroconnect/__pycache__/
+Ai_agroconnect/*.pkl
+Ai_agroconnect/*.csv
+Ai_agroconnect/.venv/

@@ -48,12 +48,30 @@ const userSchema = new mongoose.Schema({
     transporterProfile: {
         name: String,
         licenseNumber: String,
+        licenseType: {
+            type: String,
+            enum: ["Permis B", "Permis C", "Permis C1", "Permis C2", "Permis D", "Permis E"],
+            default: "Permis B"
+        },
+        vehicleType: { type: String, default: 'Camion' }, // Added for AI
         rating: {
             type: Number,
             default: 0,
             min: 0,
             max: 5,
         },
+        aiRating: {
+            score: { type: Number, default: 0 },
+            category: { type: String, default: 'Nouveau' },
+            lastUpdated: Date,
+            totalTripsAnalyzed: { type: Number, default: 0 },
+            consistency: { type: Number, default: 0 }
+        },
+        ratingHistory: [{
+            date: { type: Date, default: Date.now },
+            score: Number,
+            category: String
+        }],
         totalDeliveries: {
             type: Number,
             default: 0,

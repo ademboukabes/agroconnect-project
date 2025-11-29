@@ -115,6 +115,66 @@ const Register = () => {
                         </div>
 
                         <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                                Numéro de téléphone
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    required
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                    value={formData.phone || ''}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        {formData.role === 'transporter' && (
+                            <>
+                                <div>
+                                    <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                                        Numéro de permis
+                                    </label>
+                                    <div className="mt-1">
+                                        <input
+                                            id="licenseNumber"
+                                            name="licenseNumber"
+                                            type="text"
+                                            required
+                                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                            value={formData.licenseNumber || ''}
+                                            onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="licenseType" className="block text-sm font-medium text-gray-700">
+                                        Type de permis
+                                    </label>
+                                    <div className="mt-1">
+                                        <select
+                                            id="licenseType"
+                                            name="licenseType"
+                                            className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                            value={formData.licenseType || 'Permis B'}
+                                            onChange={(e) => setFormData({ ...formData, licenseType: e.target.value })}
+                                        >
+                                            <option value="Permis B">Permis B (Véhicule léger)</option>
+                                            <option value="Permis C">Permis C (Poids lourd)</option>
+                                            <option value="Permis C1">Permis C1 (Petit poids lourd)</option>
+                                            <option value="Permis C2">Permis C2</option>
+                                            <option value="Permis D">Permis D (Transport en commun)</option>
+                                            <option value="Permis E">Permis E (Remorque)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div>
                             <button
                                 type="submit"
                                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"

@@ -2,6 +2,7 @@ import Shipment from './shipment.model.js';
 import Tracking from '../tracking/tracking.model.js';
 import Vehicle from '../transport/vehicle.model.js';
 import User from '../users/user.model.js';
+import * as aiService from '../../services/ai-rating.service.js';
 import { getDistance } from 'geolib';
 
 /**
@@ -218,6 +219,9 @@ export const updateShipmentStatus = async (shipmentId, transporterId, newStatus)
         await User.findByIdAndUpdate(transporterId, {
             $inc: { 'transporterProfile.totalDeliveries': 1 }
         });
+
+        // Mise à jour du Rating IA en arrière-plan
+        updateDriverRating(transporterId).catch(err => console.error('Background AI Rating Error:', err));
     }
 
     await shipment.save();
@@ -270,4 +274,53 @@ export const calculateDistance = (point1, point2) => {
         { latitude: point1[1], longitude: point1[0] },
         { latitude: point2[1], longitude: point2[0] }
     ) / 1000; // Convertir en km
+};
+
+/**
+ * Helper: Mettre à jour le rating du chauffeur via l'IA
+ */
+const updateDriverRating = async (transporterId) => {
+    try {
+        const shipments = await Shipment.find({
+            transporter: transporterId,
+            status: 'delivered'
+        }).populate('vehicle');
+
+        const user = await User.findById(transporterId);
+
+        if (!shipments.length || !user) return;
+
+        const trips = shipments.map(s => ({
+            vehicule: s.vehicle?.vehicleType || user.transporterProfile?.vehicleType || 'Camion',
+            produit: s.productType,
+            ville: s.delivery.address,
+            poids: s.weight,
+            duree: 2, // Placeholder
+            prix: s.price || 1000
+        }));
+
+        const aiResult = await aiService.rateDriver(transporterId, trips);
+
+        if (aiResult) {
+            user.transporterProfile.aiRating = {
+                score: aiResult.overall_rating,
+                category: aiResult.category,
+                lastUpdated: new Date(),
+                totalTripsAnalyzed: aiResult.total_trips,
+                consistency: aiResult.consistency
+            };
+
+            // Ajouter à l'historique
+            user.transporterProfile.ratingHistory.push({
+                date: new Date(),
+                score: aiResult.overall_rating,
+                category: aiResult.category
+            });
+
+            await user.save();
+            console.log(`✅ AI Rating updated for driver ${transporterId}: ${aiResult.overall_rating}`);
+        }
+    } catch (error) {
+        console.error('Error updating driver rating:', error);
+    }
 };

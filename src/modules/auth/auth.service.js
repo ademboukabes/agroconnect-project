@@ -38,7 +38,7 @@ export const verifyToken = (token) => {
  * @returns {Object} Utilisateur créé et token
  */
 export const registerUser = async (userData) => {
-    const { name, email, password, role } = userData;
+    const { name, email, password, role, phone, transporterProfile } = userData;
 
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ email });
@@ -51,7 +51,9 @@ export const registerUser = async (userData) => {
         name,
         email,
         password,
-        role: role || 'user'
+        role: role || 'user',
+        phone,
+        transporterProfile: role === 'transporter' ? transporterProfile : undefined
     });
 
     // Générer le token
