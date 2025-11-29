@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Truck, Map, Package, User } from 'lucide-react';
 
@@ -17,10 +17,10 @@ const MainLayout = () => {
             <nav className="bg-white shadow-sm border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex items-center">
+                        <Link to="/dashboard" className="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
                             <Truck className="h-8 w-8 text-primary" />
-                            <span className="ml-2 text-xl font-bold text-gray-900">AgroConnect</span>
-                        </div>
+                            <span className="ml-2 text-xl font-bold text-gray-900">SLAELI</span>
+                        </Link>
 
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center space-x-2 text-sm text-gray-700">

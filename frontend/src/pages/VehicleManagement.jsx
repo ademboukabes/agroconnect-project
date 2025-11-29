@@ -46,6 +46,9 @@ const VehicleManagement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('🚗 Début de l\'ajout de véhicule...');
+        console.log('Données du formulaire:', formData);
+
         try {
             // Coordonnées par défaut (Alger) pour l'initialisation
             const payload = {
@@ -56,7 +59,12 @@ const VehicleManagement = () => {
                 }
             };
 
-            await api.post('/vehicles', payload);
+            console.log('📤 Envoi des données:', payload);
+
+            const response = await api.post('/vehicles', payload);
+
+            console.log('✅ Réponse reçue:', response.data);
+
             setShowForm(false);
             setFormData({
                 vehicleType: 'camion',
@@ -65,10 +73,16 @@ const VehicleManagement = () => {
                 model: '',
                 year: new Date().getFullYear()
             });
-            fetchVehicles();
+
+            alert('✅ Véhicule ajouté avec succès !');
+            await fetchVehicles();
         } catch (error) {
-            console.error('Error creating vehicle:', error);
-            alert('Erreur lors de l\'ajout du véhicule');
+            console.error('❌ Erreur complète:', error);
+            console.error('❌ Réponse du serveur:', error.response?.data);
+            console.error('❌ Status:', error.response?.status);
+
+            const errorMessage = error.response?.data?.message || error.message || 'Erreur inconnue';
+            alert(`❌ Erreur lors de l'ajout du véhicule:\n${errorMessage}`);
         }
     };
 

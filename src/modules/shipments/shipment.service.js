@@ -77,6 +77,17 @@ export const getTransporterShipments = async (transporterId, status = null) => {
  * Obtenir les demandes disponibles pour les transporteurs
  */
 export const getAvailableShipments = async (transporterId) => {
+    // Vérifier que le transporteur est disponible
+    const transporter = await User.findById(transporterId);
+    if (!transporter || transporter.role !== 'transporter') {
+        throw new Error('Transporteur non trouvé');
+    }
+
+    // Si le transporteur n'est pas disponible, retourner un tableau vide
+    if (!transporter.transporterProfile?.isAvailable) {
+        return [];
+    }
+
     // Récupérer les véhicules du transporteur
     const vehicles = await Vehicle.find({
         transporter: transporterId,

@@ -96,8 +96,16 @@ export const toggleAvailability = async (userId) => {
         throw new Error('Seuls les transporteurs peuvent modifier leur disponibilité');
     }
 
-    user.transporterProfile.isAvailable = !user.transporterProfile.isAvailable;
-    await user.save();
+    // Utiliser findByIdAndUpdate pour éviter les problèmes de validation
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+            $set: {
+                'transporterProfile.isAvailable': !user.transporterProfile?.isAvailable
+            }
+        },
+        { new: true, runValidators: false }
+    ).select('-password');
 
-    return user;
+    return updatedUser;
 };
