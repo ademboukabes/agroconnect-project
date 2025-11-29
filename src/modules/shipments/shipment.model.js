@@ -93,7 +93,19 @@ const shipmentSchema = new mongoose.Schema({
         enum: ["pending", "accepted", "in_transit", "delivered", "cancelled"],
         default: "pending",
     },
+
+    // Prix
     price: {
+        type: Number,
+        required: [true, "Le prix est requis"],
+        min: [1, "Le prix doit être supérieur à 0"],
+    },
+    priceStatus: {
+        type: String,
+        enum: ["proposed", "negotiating", "agreed"],
+        default: "proposed",
+    },
+    negotiatedPrice: {
         type: Number,
         min: [0, "Le prix ne peut pas être négatif"],
     },

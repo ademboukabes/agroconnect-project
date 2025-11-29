@@ -124,7 +124,7 @@ export const getShipment = async (req, res) => {
 // @access  Private (Transporter)
 export const acceptShipmentRequest = async (req, res) => {
     try {
-        const { vehicleId } = req.body;
+        const { vehicleId, price } = req.body;
 
         if (!vehicleId) {
             return res.status(400).json({
@@ -133,7 +133,7 @@ export const acceptShipmentRequest = async (req, res) => {
             });
         }
 
-        const shipment = await acceptShipment(req.params.id, req.user.id, vehicleId);
+        const shipment = await acceptShipment(req.params.id, req.user.id, vehicleId, price);
 
         res.status(200).json({
             success: true,

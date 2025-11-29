@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Truck, MapPin, CheckCircle, Star, TrendingUp, Package, ArrowRight, DollarSign, Power } from 'lucide-react';
+import { Truck, MapPin, CheckCircle, Star, TrendingUp, Package, ArrowRight, DollarSign, Power, Phone } from 'lucide-react';
 import DriverRating from './DriverRating';
 
 const TransporterDashboard = () => {
@@ -13,6 +13,24 @@ const TransporterDashboard = () => {
     const [ratingData, setRatingData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAvailable, setIsAvailable] = useState(user?.transporterProfile?.isAvailable ?? true);
+    const [revealedPhones, setRevealedPhones] = useState({});
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('fr-DZ', {
+            style: 'currency',
+            currency: 'DZD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    };
+
+    const handleNegotiateClick = (e, shipmentId) => {
+        e.preventDefault(); // Prevent navigation
+        setRevealedPhones(prev => ({
+            ...prev,
+            [shipmentId]: !prev[shipmentId]
+        }));
+    };
 
     useEffect(() => {
         if (user?.transporterProfile) {
@@ -221,8 +239,22 @@ const TransporterDashboard = () => {
                                             </div>
                                             <div className="flex flex-col items-end ml-4">
                                                 <span className="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-green-100 text-green-800 mb-2">
-                                                    {shipment.price ? `${shipment.price} DZD` : 'Prix à définir'}
+                                                    {shipment.price ? formatPrice(shipment.price) : 'Prix à définir'}
                                                 </span>
+
+                                                <button
+                                                    onClick={(e) => handleNegotiateClick(e, shipment._id)}
+                                                    className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors mb-2 ${revealedPhones[shipment._id]
+                                                            ? 'bg-blue-100 text-blue-700'
+                                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                        }`}
+                                                >
+                                                    <Phone className="h-3 w-3" />
+                                                    {revealedPhones[shipment._id]
+                                                        ? (shipment.client?.phone || 'Non disponible')
+                                                        : 'Négocier'}
+                                                </button>
+
                                                 <span className="text-xs text-gray-400">
                                                     Voir détails &rarr;
                                                 </span>

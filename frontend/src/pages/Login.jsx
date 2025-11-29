@@ -33,7 +33,7 @@ const Login = () => {
                     </div>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-                    Bienvenue sur SLAELI
+                    Bienvenue sur SELA3LII
                 </h2>
                 <p className="mt-2 text-center text-sm text-gray-600">
                     La plateforme logistique pour l'agriculture

@@ -61,10 +61,15 @@ export const registerUser = async (userData) => {
 
     return {
         user: {
+            _id: user._id,
             id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            phone: user.phone,
+            address: user.address,
+            transporterProfile: user.transporterProfile,
+            clientProfile: user.clientProfile
         },
         token
     };
@@ -94,10 +99,15 @@ export const loginUser = async (email, password) => {
 
     return {
         user: {
+            _id: user._id,
             id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            phone: user.phone,
+            address: user.address,
+            transporterProfile: user.transporterProfile,
+            clientProfile: user.clientProfile
         },
         token
     };

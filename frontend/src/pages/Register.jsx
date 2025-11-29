@@ -44,7 +44,7 @@ const Register = () => {
                     Créer un compte
                 </h2>
                 <p className="mt-2 text-center text-sm text-gray-600">
-                    Rejoignez la communauté SLAELI
+                    Rejoignez la communauté SELA3LII
                 </p>
             </div>
 

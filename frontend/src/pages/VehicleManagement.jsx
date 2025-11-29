@@ -46,7 +46,7 @@ const VehicleManagement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('🚗 Début de l\'ajout de véhicule...');
+        console.log('Début de l\'ajout de véhicule...');
         console.log('Données du formulaire:', formData);
 
         try {
@@ -59,11 +59,11 @@ const VehicleManagement = () => {
                 }
             };
 
-            console.log('📤 Envoi des données:', payload);
+            console.log('Envoi des données:', payload);
 
             const response = await api.post('/vehicles', payload);
 
-            console.log('✅ Réponse reçue:', response.data);
+            console.log('Réponse reçue:', response.data);
 
             setShowForm(false);
             setFormData({
@@ -74,15 +74,15 @@ const VehicleManagement = () => {
                 year: new Date().getFullYear()
             });
 
-            alert('✅ Véhicule ajouté avec succès !');
+            alert('Véhicule ajouté avec succès !');
             await fetchVehicles();
         } catch (error) {
-            console.error('❌ Erreur complète:', error);
-            console.error('❌ Réponse du serveur:', error.response?.data);
-            console.error('❌ Status:', error.response?.status);
+            console.error('Erreur complète:', error);
+            console.error('Réponse du serveur:', error.response?.data);
+            console.error('Status:', error.response?.status);
 
             const errorMessage = error.response?.data?.message || error.message || 'Erreur inconnue';
-            alert(`❌ Erreur lors de l'ajout du véhicule:\n${errorMessage}`);
+            alert(`Erreur lors de l'ajout du véhicule:\n${errorMessage}`);
         }
     };
 

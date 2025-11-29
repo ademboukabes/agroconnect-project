@@ -13,6 +13,16 @@ const ShipmentDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [simulating, setSimulating] = useState(false);
+    const [revealedPhone, setRevealedPhone] = useState(false);
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('fr-DZ', {
+            style: 'currency',
+            currency: 'DZD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    };
 
     useEffect(() => {
         fetchShipment();
@@ -159,8 +169,8 @@ const ShipmentDetails = () => {
                                 ].map((item) => (
                                     <div key={item.step} className="flex flex-col items-center">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 z-10 ${currentStep >= item.step
-                                                ? 'bg-primary border-white text-white shadow-lg scale-110'
-                                                : 'bg-white border-gray-100 text-gray-300'
+                                            ? 'bg-primary border-white text-white shadow-lg scale-110'
+                                            : 'bg-white border-gray-100 text-gray-300'
                                             }`}>
                                             <item.icon className="h-5 w-5" />
                                         </div>
@@ -189,8 +199,8 @@ const ShipmentDetails = () => {
                             ].map((item) => (
                                 <div key={item.step} className="relative flex items-center">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-300 ${currentStep >= item.step
-                                            ? 'bg-primary border-white text-white shadow-md'
-                                            : 'bg-white border-gray-200 text-gray-300'
+                                        ? 'bg-primary border-white text-white shadow-md'
+                                        : 'bg-white border-gray-200 text-gray-300'
                                         }`}>
                                         <item.icon className="h-4 w-4" />
                                     </div>
@@ -224,6 +234,12 @@ const ShipmentDetails = () => {
                             <div className="bg-gray-50 p-4 rounded-xl">
                                 <p className="text-sm text-gray-500 mb-1">Quantité / Poids</p>
                                 <p className="text-lg font-bold text-gray-900">{shipment.quantity} unités • {shipment.weight} tonnes</p>
+                            </div>
+                            <div className="bg-green-50 p-4 rounded-xl md:col-span-2">
+                                <p className="text-sm text-green-700 mb-1 font-medium">Prix proposé</p>
+                                <p className="text-2xl font-bold text-green-800">
+                                    {shipment.price ? formatPrice(shipment.price) : 'Prix à définir'}
+                                </p>
                             </div>
 
                             <div className="md:col-span-2 relative pl-8 border-l-2 border-gray-200 space-y-8 py-2">
@@ -346,12 +362,27 @@ const ShipmentDetails = () => {
                             <h3 className="text-lg font-bold text-gray-900 mb-4">Actions</h3>
                             <div className="space-y-3">
                                 {shipment.status === 'pending' && (
-                                    <button
-                                        onClick={handleAccept}
-                                        className="w-full py-3 px-4 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all transform hover:scale-[1.02]"
-                                    >
-                                        Accepter la mission
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={handleAccept}
+                                            className="w-full py-3 px-4 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all transform hover:scale-[1.02]"
+                                        >
+                                            Accepter la mission
+                                        </button>
+
+                                        <button
+                                            onClick={() => setRevealedPhone(!revealedPhone)}
+                                            className={`w-full py-3 px-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] flex items-center justify-center ${revealedPhone
+                                                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-200'
+                                                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            <Phone className="h-5 w-5 mr-2" />
+                                            {revealedPhone
+                                                ? (shipment.client?.phone || 'Non disponible')
+                                                : 'Appeler pour négocier'}
+                                        </button>
+                                    </>
                                 )}
 
                                 {shipment.status === 'accepted' && (

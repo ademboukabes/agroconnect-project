@@ -129,12 +129,12 @@ const TrackingMap = ({ shipmentId, initialLocation, pickup, delivery }) => {
         });
 
         newSocket.on('connect', () => {
-            console.log('✅ Connecté au tracking');
+            console.log('Connecté au tracking');
             newSocket.emit('join-shipment', shipmentId);
         });
 
         newSocket.on('location-update', (data) => {
-            console.log('📍 Mise à jour position:', data);
+            console.log('Mise à jour position:', data);
             const [lng, lat] = data.location.coordinates;
             const newPos = [lat, lng];
             setPosition(newPos);
@@ -175,7 +175,7 @@ const TrackingMap = ({ shipmentId, initialLocation, pickup, delivery }) => {
                     <Marker position={position} icon={TruckIcon}>
                         <Popup>
                             <div className="text-center">
-                                <strong>🚛 Camion en route</strong>
+                                <strong>Camion en route</strong>
                                 <br />
                                 <small>Position actuelle</small>
                             </div>
@@ -188,7 +188,7 @@ const TrackingMap = ({ shipmentId, initialLocation, pickup, delivery }) => {
                     <Marker position={pickupPos} icon={PickupIcon}>
                         <Popup>
                             <div className="text-center">
-                                <strong>📦 Point de ramassage</strong>
+                                <strong>Point de ramassage</strong>
                                 <br />
                                 <small>Départ</small>
                             </div>
@@ -201,7 +201,7 @@ const TrackingMap = ({ shipmentId, initialLocation, pickup, delivery }) => {
                     <Marker position={deliveryPos} icon={DeliveryIcon}>
                         <Popup>
                             <div className="text-center">
-                                <strong>🎯 Destination</strong>
+                                <strong>Destination</strong>
                                 <br />
                                 <small>Arrivée</small>
                             </div>

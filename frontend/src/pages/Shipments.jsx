@@ -63,6 +63,15 @@ const Shipments = () => {
         return texts[status] || status;
     };
 
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('fr-DZ', {
+            style: 'currency',
+            currency: 'DZD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    };
+
     const filteredShipments = statusFilter === 'all'
         ? shipments
         : shipments.filter(s => s.status === statusFilter);
@@ -80,6 +89,9 @@ const Shipments = () => {
                     <div>
                         <h3 className="text-lg font-bold text-gray-900">{shipment.productType}</h3>
                         <p className="text-sm text-gray-500">{shipment.weight} tonnes</p>
+                        <p className="text-sm font-bold text-green-600">
+                            {shipment.price ? formatPrice(shipment.price) : 'Prix à définir'}
+                        </p>
                     </div>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(shipment.status)}`}>
@@ -131,8 +143,8 @@ const Shipments = () => {
                     <button
                         onClick={() => setActiveTab('mydeliveries')}
                         className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'mydeliveries'
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
                             }`}
                     >
                         Mes Livraisons ({shipments.length})
@@ -140,8 +152,8 @@ const Shipments = () => {
                     <button
                         onClick={() => setActiveTab('available')}
                         className={`px-4 py-2 font-medium transition-colors border-b-2 ${activeTab === 'available'
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
                             }`}
                     >
                         Demandes Disponibles ({availableShipments.length})

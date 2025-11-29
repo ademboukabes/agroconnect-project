@@ -50,7 +50,7 @@ const Dashboard = () => {
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <Link to="/dashboard" className="flex items-center justify-center h-16 bg-gradient-to-r from-primary to-secondary px-6 cursor-pointer hover:opacity-90 transition-opacity">
                     <Sparkles className="h-8 w-8 text-white mr-2" />
-                    <span className="text-xl font-bold text-white tracking-tight">SLAELI</span>
+                    <span className="text-xl font-bold text-white tracking-tight">SELA3LII</span>
                 </Link>
 
                 <nav className="mt-8 px-4 space-y-2">
@@ -122,7 +122,7 @@ const Dashboard = () => {
                                         <div className="max-h-64 overflow-y-auto">
                                             <div className="px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-50">
                                                 <div className="flex justify-between items-start">
-                                                    <p className="text-sm text-gray-800 font-medium">Bienvenue sur SLAELI !</p>
+                                                    <p className="text-sm text-gray-800 font-medium">Bienvenue sur SELA3LII !</p>
                                                     {hasUnread && <span className="h-2 w-2 bg-primary rounded-full"></span>}
                                                 </div>
                                                 <p className="text-xs text-gray-500 mt-1">Il y a 2 minutes</p>

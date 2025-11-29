@@ -96,10 +96,15 @@ export const getMe = async (req, res) => {
             success: true,
             data: {
                 user: {
-                    id: user._id,
+                    _id: user._id,
+                    id: user._id,  // Include both for compatibility
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: user.role,
+                    phone: user.phone,
+                    address: user.address,
+                    transporterProfile: user.transporterProfile,
+                    clientProfile: user.clientProfile
                 }
             }
         });
