@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Truck, MapPin, CheckCircle, Star, TrendingUp, Package, ArrowRight, DollarSign, Power, Phone } from 'lucide-react';
+import { Truck, MapPin, CheckCircle, Star, TrendingUp, Package, ArrowRight, DollarSign, Power, Phone, ShieldCheck } from 'lucide-react';
 import DriverRating from './DriverRating';
+import { Card, CardBody, CardHeader } from './ui/Card';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
 
 const TransporterDashboard = () => {
     const { user } = useAuth();
@@ -25,7 +28,7 @@ const TransporterDashboard = () => {
     };
 
     const handleNegotiateClick = (e, shipmentId) => {
-        e.preventDefault(); // Prevent navigation
+        e.preventDefault();
         setRevealedPhones(prev => ({
             ...prev,
             [shipmentId]: !prev[shipmentId]
@@ -41,22 +44,17 @@ const TransporterDashboard = () => {
     const handleToggleAvailability = async () => {
         try {
             const response = await api.put('/users/toggle-availability');
-
             if (response.data.success) {
-                const newAvailability = response.data.data.isAvailable;
-                setIsAvailable(newAvailability);
+                setIsAvailable(response.data.data.isAvailable);
             }
         } catch (error) {
             console.error('Error toggling availability:', error);
-            alert(`Erreur: ${error.response?.data?.message || error.message}`);
         }
     };
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!user?._id) {
-                return;
-            }
+            if (!user?._id) return;
 
             try {
                 const [availableRes, myRes, ratingRes, vehiclesRes] = await Promise.all([
@@ -66,18 +64,10 @@ const TransporterDashboard = () => {
                     api.get('/vehicles')
                 ]);
 
-                if (availableRes.data.success) {
-                    setAvailableShipments(availableRes.data.data.shipments);
-                }
-                if (myRes.data.success) {
-                    setMyDeliveries(myRes.data.data.shipments);
-                }
-                if (ratingRes.data.success) {
-                    setRatingData(ratingRes.data.data.aiRating);
-                }
-                if (vehiclesRes.data.success) {
-                    setVehicles(vehiclesRes.data.data.vehicles);
-                }
+                if (availableRes.data.success) setAvailableShipments(availableRes.data.data.shipments);
+                if (myRes.data.success) setMyDeliveries(myRes.data.data.shipments);
+                if (ratingRes.data.success) setRatingData(ratingRes.data.data.aiRating);
+                if (vehiclesRes.data.success) setVehicles(vehiclesRes.data.data.vehicles);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -89,182 +79,197 @@ const TransporterDashboard = () => {
     }, [user]);
 
     return (
-        <div className="space-y-8">
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Availability Card */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
-                    <div className={`absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 rounded-full blur-2xl transition-colors duration-500 ${isAvailable ? 'bg-green-500/10' : 'bg-gray-500/10'}`}></div>
-                    <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center">
-                        <Power className={`h-4 w-4 mr-2 ${isAvailable ? 'text-green-500' : 'text-gray-400'}`} />
-                        Statut
-                    </h2>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className={`text-xl font-bold transition-colors duration-300 ${isAvailable ? 'text-green-600' : 'text-gray-500'}`}>
-                                {isAvailable ? 'En ligne' : 'Hors ligne'}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                                {isAvailable ? 'Visible' : 'Invisible'}
-                            </p>
+        <div className="space-y-10 animate-in fade-in duration-500">
+            {/* Top Grid: Status & IA Performance */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Availability Status Card */}
+                <Card className="overflow-hidden relative border-none bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+                    <div className={`absolute top-0 right-0 w-32 h-32 blur-3xl rounded-full -mr-16 -mt-16 transition-colors duration-700 ${isAvailable ? 'bg-emerald-500/30' : 'bg-slate-500/20'}`} />
+                    <CardBody className="p-8 relative z-10 flex flex-col h-full justify-between">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Votre Visibilité</p>
+                                <h3 className="text-3xl font-bold flex items-center gap-3">
+                                    {isAvailable ? 'En ligne' : 'Hors ligne'}
+                                    <span className={`h-3 w-3 rounded-full ${isAvailable ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                                </h3>
+                            </div>
+                            <button
+                                onClick={handleToggleAvailability}
+                                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none ring-offset-2 ring-offset-slate-900 focus:ring-2 focus:ring-emerald-500 ${isAvailable ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                            >
+                                <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${isAvailable ? 'translate-x-8' : 'translate-x-1'}`} />
+                            </button>
                         </div>
-                        <button
-                            onClick={handleToggleAvailability}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${isAvailable ? 'bg-green-500' : 'bg-gray-200'}`}
-                        >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAvailable ? 'translate-x-6' : 'translate-x-1'}`} />
-                        </button>
-                    </div>
-                </div>
+                        <p className="mt-6 text-sm text-slate-400 font-medium">
+                            {isAvailable
+                                ? 'Vous êtes visible par les clients pour de nouvelles demandes.'
+                                : 'Activez-vous pour recevoir des propositions de transport.'}
+                        </p>
+                    </CardBody>
+                </Card>
 
-                {/* AI Rating Card */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
-                    <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center">
-                        <Star className="h-4 w-4 mr-2 text-accent" />
-                        Performance IA
-                    </h2>
-                    <DriverRating aiRating={ratingData} />
-                </div>
-
-                {/* Fleet Summary */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center">
-                                <Truck className="h-4 w-4 mr-2 text-blue-500" />
-                                Ma Flotte
-                            </h2>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">{vehicles.length}</p>
-                            <p className="text-sm text-gray-500">Véhicules actifs</p>
+                {/* AI Performance Card */}
+                <Card className="lg:col-span-2">
+                    <CardBody className="p-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                    <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                                    Performance IA
+                                </h3>
+                                <p className="text-sm text-slate-500 font-medium">Analyse temps réel de votre qualité de service</p>
+                            </div>
+                            <Badge variant="primary">AgroConnect AI</Badge>
                         </div>
-                        <Link to="/vehicles" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                            <ArrowRight className="h-5 w-5" />
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Earnings (Placeholder) */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-green-500/10 rounded-full blur-2xl"></div>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center">
-                                <TrendingUp className="h-4 w-4 mr-2 text-green-500" />
-                                Revenus (Mois)
-                            </h2>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">-- DZD</p>
-                            <p className="text-sm text-gray-500">+0% vs mois dernier</p>
-                        </div>
-                    </div>
-                </div>
+                        <DriverRating aiRating={ratingData} />
+                    </CardBody>
+                </Card>
             </div>
 
-            {/* Active Deliveries */}
-            <div>
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-gray-900">Livraisons en cours</h2>
-                    <span className="bg-primary/10 text-primary text-xs font-bold px-2.5 py-0.5 rounded-full">
-                        {myDeliveries.length} active(s)
-                    </span>
-                </div>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card hover>
+                    <CardBody className="p-6 flex items-center">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl mr-4">
+                            <Truck className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-400 uppercase tracking-tight">Ma Flotte</p>
+                            <p className="text-2xl font-bold text-slate-900">{vehicles.length}</p>
+                        </div>
+                    </CardBody>
+                </Card>
+                <Card hover>
+                    <CardBody className="p-6 flex items-center">
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl mr-4">
+                            <CheckCircle className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-400 uppercase tracking-tight">Réussi</p>
+                            <p className="text-2xl font-bold text-slate-900">{myDeliveries.filter(d => d.status === 'delivered').length}</p>
+                        </div>
+                    </CardBody>
+                </Card>
+                <Card hover>
+                    <CardBody className="p-6 flex items-center">
+                        <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl mr-4">
+                            <TrendingUp className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-400 uppercase tracking-tight">Revenus</p>
+                            <p className="text-2xl font-bold text-slate-900">-- <span className="text-xs">DZD</span></p>
+                        </div>
+                    </CardBody>
+                </Card>
+                <Card hover>
+                    <CardBody className="p-6 flex items-center">
+                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl mr-4">
+                            <ShieldCheck className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-400 uppercase tracking-tight">Fiabilité</p>
+                            <p className="text-2xl font-bold text-slate-900">-- <span className="text-xs text-slate-500 mb-2">%</span></p>
+                        </div>
+                    </CardBody>
+                </Card>
+            </div>
 
+            {/* Active Deliveries Grid */}
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-slate-900">Livraisons Actives</h2>
+                    <Badge variant="primary">{myDeliveries.length} en transit</Badge>
+                </div>
                 {myDeliveries.length === 0 ? (
-                    <div className="bg-white rounded-2xl p-8 text-center border border-dashed border-gray-300">
-                        <p className="text-gray-500">Aucune livraison en cours actuellement.</p>
-                    </div>
+                    <Card className="border-dashed border-2 py-12">
+                        <CardBody className="text-center">
+                            <Package className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                            <p className="text-slate-500 font-medium">Aucune livraison n'est actuellement en cours.</p>
+                        </CardBody>
+                    </Card>
                 ) : (
-                    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                         {myDeliveries.map((shipment) => (
-                            <Link key={shipment._id} to={`/shipments/${shipment._id}`} className="group bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 transition-all duration-200 overflow-hidden">
-                                <div className="p-5">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center">
-                                            <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                                <Package className="h-5 w-5" />
-                                            </div>
-                                            <div className="ml-3">
-                                                <h3 className="text-sm font-bold text-gray-900 truncate max-w-[120px]">
-                                                    {shipment.productType}
-                                                </h3>
-                                                <p className="text-xs text-gray-500">En cours</p>
-                                            </div>
+                            <Card key={shipment._id} hover className="flex flex-col h-full overflow-hidden border-l-4 border-l-primary-500">
+                                <CardBody className="p-6 flex-1">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center">
+                                            <Package className="h-6 w-6" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-bold text-slate-900 truncate">{shipment.productType}</h4>
+                                            <p className="text-xs font-semibold text-primary-600 uppercase">En cours de livraison</p>
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <div className="flex items-center text-sm text-gray-600">
-                                            <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                                            <span className="truncate">{shipment.delivery.address}</span>
-                                        </div>
+                                    <div className="flex items-start gap-2 text-sm text-slate-500 font-medium leading-relaxed">
+                                        <MapPin className="h-4 w-4 mt-1 flex-shrink-0 text-slate-400" />
+                                        <span className="line-clamp-2">{shipment.delivery.address}</span>
                                     </div>
-                                </div>
-                                <div className="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center group-hover:bg-blue-50/50 transition-colors">
-                                    <span className="text-xs font-medium text-blue-600">Gérer la livraison</span>
-                                    <ArrowRight className="h-4 w-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
-                                </div>
-                            </Link>
+                                </CardBody>
+                                <Link to={`/shipments/${shipment._id}`} className="px-6 py-4 bg-slate-50 hover:bg-primary-50/50 flex justify-between items-center transition-colors border-t border-slate-100">
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Gérer le suivi</span>
+                                    <ArrowRight className="h-4 w-4 text-primary-600" />
+                                </Link>
+                            </Card>
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Available Requests */}
-            <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Nouvelles opportunités</h2>
+            {/* New Opportunities List */}
+            <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-slate-900">Opportunités Disponibles</h2>
                 {availableShipments.length === 0 ? (
-                    <div className="bg-white rounded-2xl p-8 text-center border border-dashed border-gray-300">
-                        <p className="text-gray-500">Aucune demande disponible pour le moment.</p>
-                    </div>
+                    <Card className="border-dashed border-2 py-12">
+                        <CardBody className="text-center text-slate-500 font-medium">
+                            <Plus className="h-10 w-10 mx-auto mb-4 text-slate-200" />
+                            Revenez plus tard pour de nouvelles demandes.
+                        </CardBody>
+                    </Card>
                 ) : (
-                    <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100">
-                        <ul className="divide-y divide-gray-100">
+                    <Card className="overflow-hidden shadow-premium">
+                        <div className="divide-y divide-slate-50">
                             {availableShipments.map((shipment) => (
-                                <li key={shipment._id} className="hover:bg-gray-50 transition-colors">
-                                    <Link to={`/shipments/${shipment._id}`} className="block p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center min-w-0">
-                                                <div className="h-12 w-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 mr-4">
-                                                    <DollarSign className="h-6 w-6" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-gray-900 truncate">
-                                                        {shipment.productType} • {shipment.weight} tonnes
-                                                    </p>
-                                                    <div className="flex items-center mt-1 text-sm text-gray-500">
-                                                        <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                                                        {shipment.pickup.city || 'Départ'} → {shipment.delivery.city || 'Arrivée'}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col items-end ml-4">
-                                                <span className="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-green-100 text-green-800 mb-2">
-                                                    {shipment.price ? formatPrice(shipment.price) : 'Prix à définir'}
-                                                </span>
-
-                                                <button
-                                                    onClick={(e) => handleNegotiateClick(e, shipment._id)}
-                                                    className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors mb-2 ${revealedPhones[shipment._id]
-                                                            ? 'bg-blue-100 text-blue-700'
-                                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                        }`}
-                                                >
-                                                    <Phone className="h-3 w-3" />
-                                                    {revealedPhones[shipment._id]
-                                                        ? (shipment.client?.phone || 'Non disponible')
-                                                        : 'Négocier'}
-                                                </button>
-
-                                                <span className="text-xs text-gray-400">
-                                                    Voir détails &rarr;
-                                                </span>
+                                <div key={shipment._id} className="p-6 hover:bg-slate-50/50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                                    <div className="flex items-center gap-5 min-w-0 flex-1">
+                                        <div className="h-14 w-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                                            <DollarSign className="h-7 w-7" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-lg font-bold text-slate-900 truncate">
+                                                {shipment.productType} • {shipment.weight} tonnes
+                                            </p>
+                                            <div className="flex items-center mt-1 text-sm text-slate-500 font-medium">
+                                                <MapPin className="h-4 w-4 mr-2 text-slate-400" />
+                                                <span className="truncate">{shipment.pickup.city || 'Départ'} → {shipment.delivery.city || 'Arrivée'}</span>
                                             </div>
                                         </div>
-                                    </Link>
-                                </li>
+                                    </div>
+
+                                    <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 w-full sm:w-auto self-end">
+                                        <Badge variant="success" className="text-sm px-4 py-1">
+                                            {shipment.price ? formatPrice(shipment.price) : 'Prix Flexible'}
+                                        </Badge>
+
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant={revealedPhones[shipment._id] ? 'accent' : 'secondary'}
+                                                size="sm"
+                                                icon={Phone}
+                                                onClick={(e) => handleNegotiateClick(e, shipment._id)}
+                                            >
+                                                {revealedPhones[shipment._id] ? (shipment.client?.phone || 'Contact') : 'Négocier'}
+                                            </Button>
+                                            <Link to={`/shipments/${shipment._id}`}>
+                                                <Button size="sm" variant="ghost" icon={ArrowRight} />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
-                    </div>
+                        </div>
+                    </Card>
                 )}
             </div>
         </div>

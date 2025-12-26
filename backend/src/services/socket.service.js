@@ -44,22 +44,22 @@ export const initializeSocket = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log(`✅ Client connecté: ${socket.user.name} (${socket.user.role})`);
+        console.log(`Client connected: ${socket.user.name} (${socket.user.role})`);
 
         // Rejoindre une room spécifique à l'expédition
         socket.on('join-shipment', (shipmentId) => {
             socket.join(`shipment-${shipmentId}`);
-            console.log(`📦 ${socket.user.name} a rejoint le tracking de l'expédition ${shipmentId}`);
+            console.log(`${socket.user.name} joined shipment tracking ${shipmentId}`);
         });
 
         // Quitter une room
         socket.on('leave-shipment', (shipmentId) => {
             socket.leave(`shipment-${shipmentId}`);
-            console.log(`📦 ${socket.user.name} a quitté le tracking de l'expédition ${shipmentId}`);
+            console.log(`${socket.user.name} left shipment tracking ${shipmentId}`);
         });
 
         socket.on('disconnect', () => {
-            console.log(`❌ Client déconnecté: ${socket.user.name}`);
+            console.log(`Client disconnected: ${socket.user.name}`);
         });
     });
 
@@ -76,7 +76,7 @@ export const emitLocationUpdate = (shipmentId, locationData) => {
             location: locationData,
             timestamp: new Date()
         });
-        console.log(`📍 Position mise à jour pour l'expédition ${shipmentId}`);
+        console.log(`Location updated for shipment ${shipmentId}`);
     }
 };
 
@@ -90,7 +90,7 @@ export const emitStatusUpdate = (shipmentId, statusData) => {
             status: statusData,
             timestamp: new Date()
         });
-        console.log(`📊 Statut mis à jour pour l'expédition ${shipmentId}`);
+        console.log(`Status updated for shipment ${shipmentId}`);
     }
 };
 

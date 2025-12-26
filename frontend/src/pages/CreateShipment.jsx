@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, Calendar, DollarSign, Info, ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Input, Select } from '../components/ui/Input';
+import { Badge } from '../components/ui/Badge';
 
 const CreateShipment = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         productType: '',
         quantity: '',
@@ -19,7 +24,7 @@ const CreateShipment = () => {
         notes: ''
     });
 
-    // Liste des 48 Wilayas d'Algérie avec coordonnées approximatives (centre)
+    // Liste des 48 Wilayas d'Algérie
     const wilayas = [
         { code: '01', name: 'Adrar', coords: [0.2938, 27.8742] },
         { code: '02', name: 'Chlef', coords: [1.3289, 36.1647] },
@@ -71,59 +76,31 @@ const CreateShipment = () => {
         { code: '48', name: 'Relizane', coords: [0.5563, 35.7373] }
     ];
 
-    // Calcul de distance (Haversine formula)
     const calculateDistance = (city1Name, city2Name) => {
         if (!city1Name || !city2Name) return 0;
-
         const city1 = wilayas.find(c => c.name === city1Name);
         const city2 = wilayas.find(c => c.name === city2Name);
-
         if (!city1 || !city2) return 0;
-
         const [lon1, lat1] = city1.coords;
         const [lon2, lat2] = city2.coords;
-
-        const R = 6371; // Rayon de la terre en km
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
 
-    // Calcul automatique du prix
-    const calculateEstimatedPrice = (distance, weight, isSameWilaya) => {
-        if (!weight) return '';
-
-        const basePrice = 1000; // Prix de base réduit
-        const pricePerKm = 20; // Prix par km ajusté
-        const pricePerKg = 10; // Prix par kg
-
-        let estimated;
-
-        if (isSameWilaya) {
-            // Prix forfaitaire pour la même wilaya + supplément poids
-            estimated = 1500 + (weight * pricePerKg * 0.5);
-        } else {
-            // Prix distance + poids
-            estimated = basePrice + (distance * pricePerKm) + (weight * pricePerKg);
-        }
-
-        return Math.round(estimated / 100) * 100; // Arrondir à la centaine près
-    };
-
-    // Mise à jour automatique du prix
     const updatePrice = (newFormData) => {
-        const isSameWilaya = newFormData.pickupCity === newFormData.deliveryCity;
         const distance = calculateDistance(newFormData.pickupCity, newFormData.deliveryCity);
         const weight = Number(newFormData.weight);
-
-        if ((distance > 0 || isSameWilaya) && weight > 0) {
-            const estimatedPrice = calculateEstimatedPrice(distance, weight, isSameWilaya);
-            setFormData(prev => ({ ...prev, price: estimatedPrice }));
+        if ((distance > 0 || (newFormData.pickupCity === newFormData.deliveryCity && newFormData.pickupCity)) && weight > 0) {
+            const isSameWilaya = newFormData.pickupCity === newFormData.deliveryCity;
+            const basePrice = 1200;
+            const pricePerKm = 25;
+            const pricePerKg = 8;
+            let estimated = isSameWilaya ? 1800 + (weight * pricePerKg * 0.4) : basePrice + (distance * pricePerKm) + (weight * pricePerKg);
+            setFormData(prev => ({ ...prev, price: Math.round(estimated / 100) * 100 }));
         }
     };
 
@@ -131,11 +108,7 @@ const CreateShipment = () => {
         const { name, value } = e.target;
         const newFormData = { ...formData, [name]: value };
         setFormData(newFormData);
-
-        // Déclencher le calcul du prix si les champs pertinents changent
-        if (['pickupCity', 'deliveryCity', 'weight'].includes(name)) {
-            updatePrice(newFormData);
-        }
+        if (['pickupCity', 'deliveryCity', 'weight'].includes(name)) updatePrice(newFormData);
     };
 
     const handleSubmit = async (e) => {
@@ -144,11 +117,10 @@ const CreateShipment = () => {
         try {
             const pickupCityData = wilayas.find(c => c.name === formData.pickupCity);
             const deliveryCityData = wilayas.find(c => c.name === formData.deliveryCity);
-
             const payload = {
                 productType: formData.productType,
                 quantity: Number(formData.quantity),
-                weight: Number(formData.weight) / 1000, // Conversion Kg -> Tonnes pour le backend (si nécessaire) ou garder en Kg
+                weight: Number(formData.weight),
                 pickup: {
                     address: `${formData.pickupAddress}, ${formData.pickupCity}`,
                     location: { coordinates: pickupCityData?.coords || [0, 0] },
@@ -163,248 +135,267 @@ const CreateShipment = () => {
                 price: Number(formData.price),
                 notes: formData.notes
             };
-
             await api.post('/shipments', payload);
             navigate('/dashboard');
         } catch (error) {
             console.error('Error creating shipment:', error);
-            alert('Erreur lors de la création de la demande');
         } finally {
             setLoading(false);
         }
     };
 
+    const nextStep = () => setStep(s => s + 1);
+    const prevStep = () => setStep(s => s - 1);
+
+    const steps = [
+        { id: 1, title: 'Produit', icon: Package },
+        { id: 2, title: 'Itinéraire', icon: MapPin },
+        { id: 3, title: 'Paiement', icon: DollarSign },
+    ];
+
     return (
-        <div className="max-w-2xl mx-auto">
-            <button
-                onClick={() => navigate(-1)}
-                className="mb-6 flex items-center text-gray-600 hover:text-gray-900"
-            >
-                <ArrowLeft className="h-5 w-5 mr-1" />
-                Retour
-            </button>
-
-            <div className="bg-white shadow sm:rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                        Nouvelle demande de transport
-                    </h3>
-                    <div className="mt-2 max-w-xl text-sm text-gray-500">
-                        <p>Remplissez les détails. Le prix sera estimé automatiquement mais vous pouvez le modifier.</p>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="mt-5 space-y-6">
-                        <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                            <div className="sm:col-span-6">
-                                <label htmlFor="productType" className="block text-sm font-medium text-gray-700">
-                                    Type de produit
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        type="text"
-                                        name="productType"
-                                        id="productType"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        placeholder="Ex: Tomates, Blé, Pommes de terre..."
-                                        value={formData.productType}
-                                        onChange={handleChange}
-                                    />
-                                </div>
+        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
+            <div className="flex items-center justify-between">
+                <Button variant="ghost" onClick={() => navigate(-1)} icon={ArrowLeft}>Retour</Button>
+                <div className="flex items-center gap-2">
+                    {steps.map((s) => (
+                        <div key={s.id} className="flex items-center">
+                            <div className={`h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 ${step >= s.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-slate-100 text-slate-400'
+                                }`}>
+                                <s.icon className="h-5 w-5" />
                             </div>
+                            {s.id !== 3 && <div className={`w-8 h-1 mx-2 rounded-full transition-colors duration-300 ${step > s.id ? 'bg-primary-600' : 'bg-slate-100'}`} />}
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-                            <div className="sm:col-span-3">
-                                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-                                    Quantité (unités)
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        type="number"
-                                        name="quantity"
-                                        id="quantity"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        value={formData.quantity}
-                                        onChange={handleChange}
-                                    />
-                                </div>
+            <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                    <Card className="!rounded-[2.5rem] border-none shadow-2xl overflow-hidden">
+                        <CardHeader className="p-8 pb-0 border-none">
+                            <h2 className="text-3xl font-bold text-slate-900">
+                                {step === 1 ? 'Détails du produit' : step === 2 ? 'Lieux & Dates' : 'Confirmation du prix'}
+                            </h2>
+                            <p className="text-slate-500 font-medium">Étape {step} sur 3 • {steps[step - 1].title}</p>
+                        </CardHeader>
+
+                        <CardBody className="p-8">
+                            <form onSubmit={handleSubmit} className="space-y-8">
+                                {step === 1 && (
+                                    <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                                        <Input
+                                            label="Nature de la marchandise"
+                                            name="productType"
+                                            placeholder="Ex: Tomates, Blé, Engrais..."
+                                            required
+                                            value={formData.productType}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <Input
+                                                label="Quantité"
+                                                name="quantity"
+                                                type="number"
+                                                placeholder="Nombre d'unités"
+                                                required
+                                                value={formData.quantity}
+                                                onChange={handleChange}
+                                            />
+                                            <Input
+                                                label="Poids total (Kg)"
+                                                name="weight"
+                                                type="number"
+                                                placeholder="Poids total"
+                                                required
+                                                value={formData.weight}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                        <div className="flex justify-end">
+                                            <Button type="button" onClick={nextStep} icon={ChevronRight} className="h-12 px-8">Continuer</Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 2 && (
+                                    <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
+                                        <div className="p-6 bg-slate-50 rounded-[2rem] space-y-6 border border-slate-100">
+                                            <h4 className="font-bold flex items-center gap-2 text-slate-900">
+                                                <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">A</div>
+                                                Point de départ
+                                            </h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                                <Select
+                                                    label="Wilaya"
+                                                    name="pickupCity"
+                                                    required
+                                                    value={formData.pickupCity}
+                                                    onChange={handleChange}
+                                                    options={[
+                                                        { value: '', label: 'Séléctionner' },
+                                                        ...wilayas.map(w => ({ value: w.name, label: `${w.code} - ${w.name}` }))
+                                                    ]}
+                                                />
+                                                <Input
+                                                    label="Adresse précise"
+                                                    name="pickupAddress"
+                                                    placeholder="Commune, quartier..."
+                                                    required
+                                                    value={formData.pickupAddress}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                            <Input
+                                                label="Date de ramassage"
+                                                name="pickupDate"
+                                                type="datetime-local"
+                                                required
+                                                value={formData.pickupDate}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+
+                                        <div className="p-6 bg-slate-50 rounded-[2rem] space-y-6 border border-slate-100">
+                                            <h4 className="font-bold flex items-center gap-2 text-slate-900">
+                                                <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">B</div>
+                                                Destination
+                                            </h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                                <Select
+                                                    label="Wilaya"
+                                                    name="deliveryCity"
+                                                    required
+                                                    value={formData.deliveryCity}
+                                                    onChange={handleChange}
+                                                    options={[
+                                                        { value: '', label: 'Séléctionner' },
+                                                        ...wilayas.map(w => ({ value: w.name, label: `${w.code} - ${w.name}` }))
+                                                    ]}
+                                                />
+                                                <Input
+                                                    label="Adresse précise"
+                                                    name="deliveryAddress"
+                                                    placeholder="Lieu de livraison..."
+                                                    required
+                                                    value={formData.deliveryAddress}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between">
+                                            <Button type="button" variant="secondary" onClick={prevStep} icon={ChevronLeft}>Précédent</Button>
+                                            <Button type="button" onClick={nextStep} icon={ChevronRight} className="h-12 px-8">Continuer</Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 3 && (
+                                    <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
+                                        <div className="text-center p-8 bg-emerald-50 rounded-[2rem] border border-emerald-100">
+                                            <div className="h-16 w-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                                <DollarSign className="h-8 w-8" />
+                                            </div>
+                                            <p className="text-emerald-700 font-bold uppercase tracking-widest text-xs mb-2">Prix Estimé</p>
+                                            <h3 className="text-5xl font-extrabold text-emerald-900 mb-2">
+                                                {formData.price ? new Intl.NumberFormat('fr-DZ').format(formData.price) : '0'} <span className="text-2xl font-bold">DZD</span>
+                                            </h3>
+                                            <p className="text-emerald-600/70 text-sm font-medium">Ce prix est une base de négociation.</p>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <Input
+                                                label="Ajuster le prix (optionnel)"
+                                                name="price"
+                                                type="number"
+                                                value={formData.price}
+                                                onChange={handleChange}
+                                                className="h-14 text-xl font-bold text-emerald-700"
+                                            />
+                                            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3 text-amber-800">
+                                                <Info className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                                                <p className="text-xs font-medium leading-relaxed">
+                                                    Un prix juste augmente de 80% vos chances d'être accepté rapidement par un transporteur qualifié.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <label className="text-sm font-bold text-slate-700 ml-1">Instructions spéciales</label>
+                                            <textarea
+                                                name="notes"
+                                                rows={4}
+                                                className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium text-slate-700 placeholder:text-slate-400 outline-none"
+                                                placeholder="Détails sur l'accès, fragilité, urgence..."
+                                                value={formData.notes}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+
+                                        <div className="flex justify-between pt-4">
+                                            <Button type="button" variant="secondary" onClick={prevStep} icon={ChevronLeft}>Précédent</Button>
+                                            <Button type="submit" disabled={loading} className="h-14 px-12 text-lg shadow-xl shadow-primary-200">
+                                                {loading ? 'Création...' : 'Confirmer & Publier'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </form>
+                        </CardBody>
+                    </Card>
+                </div>
+
+                <div className="space-y-6">
+                    <Card className="!rounded-3xl border-none shadow-xl bg-slate-900 text-white overflow-hidden">
+                        <div className="p-8 space-y-6 relative">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <Package className="h-24 w-24" />
                             </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
-                                    Poids total (Kg)
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        type="number"
-                                        name="weight"
-                                        id="weight"
-                                        step="0.1"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        value={formData.weight}
-                                        onChange={handleChange}
-                                    />
+                            <h4 className="text-xl font-bold">Résumé</h4>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-400">Marcheandise</span>
+                                    <span className="font-bold">{formData.productType || '--'}</span>
                                 </div>
-                            </div>
-
-                            {/* Pickup Section */}
-                            <div className="sm:col-span-3">
-                                <label htmlFor="pickupCity" className="block text-sm font-medium text-gray-700">
-                                    Ville de départ (Wilaya)
-                                </label>
-                                <div className="mt-1">
-                                    <select
-                                        id="pickupCity"
-                                        name="pickupCity"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        value={formData.pickupCity}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">Sélectionner une wilaya</option>
-                                        {wilayas.map(city => (
-                                            <option key={city.code} value={city.name}>{city.code} - {city.name}</option>
-                                        ))}
-                                    </select>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-slate-400">Poids</span>
+                                    <span className="font-bold">{formData.weight ? `${formData.weight} Kg` : '--'}</span>
                                 </div>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="pickupAddress" className="block text-sm font-medium text-gray-700">
-                                    Adresse précise (Départ)
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        type="text"
-                                        name="pickupAddress"
-                                        id="pickupAddress"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        placeholder="Commune, Quartier, Rue..."
-                                        value={formData.pickupAddress}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-6">
-                                <label htmlFor="pickupDate" className="block text-sm font-medium text-gray-700">
-                                    Date de ramassage
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        type="datetime-local"
-                                        name="pickupDate"
-                                        id="pickupDate"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        value={formData.pickupDate}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Delivery Section */}
-                            <div className="sm:col-span-3">
-                                <label htmlFor="deliveryCity" className="block text-sm font-medium text-gray-700">
-                                    Ville d'arrivée (Wilaya)
-                                </label>
-                                <div className="mt-1">
-                                    <select
-                                        id="deliveryCity"
-                                        name="deliveryCity"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        value={formData.deliveryCity}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">Sélectionner une wilaya</option>
-                                        {wilayas.map(city => (
-                                            <option key={city.code} value={city.name}>{city.code} - {city.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="deliveryAddress" className="block text-sm font-medium text-gray-700">
-                                    Adresse précise (Arrivée)
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        type="text"
-                                        name="deliveryAddress"
-                                        id="deliveryAddress"
-                                        required
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        placeholder="Commune, Quartier, Rue..."
-                                        value={formData.deliveryAddress}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Price Section */}
-                            <div className="sm:col-span-6">
-                                <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-                                    Prix proposé (DZD)
-                                </label>
-                                <div className="mt-1 relative rounded-md shadow-sm">
-                                    <input
-                                        type="number"
-                                        name="price"
-                                        id="price"
-                                        required
-                                        min="1"
-                                        className="focus:ring-primary focus:border-primary block w-full pr-12 sm:text-sm border-gray-300 rounded-md p-2 border font-bold text-green-700"
-                                        placeholder="Calcul automatique..."
-                                        value={formData.price}
-                                        onChange={handleChange}
-                                    />
-                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <span className="text-gray-500 sm:text-sm">DZD</span>
+                                <div className="h-px bg-white/10" />
+                                <div className="space-y-3">
+                                    <div className="flex gap-3">
+                                        <div className="h-5 w-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">A</div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Départ</p>
+                                            <p className="text-sm font-bold truncate">{formData.pickupCity || 'Non séléctionné'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <div className="h-5 w-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">B</div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Arrivée</p>
+                                            <p className="text-sm font-bold truncate">{formData.deliveryCity || 'Non séléctionné'}</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Le prix est calculé automatiquement selon la distance et le poids, mais vous pouvez le modifier pour négocier.
-                                </p>
-                            </div>
-
-                            <div className="sm:col-span-6">
-                                <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-                                    Notes supplémentaires
-                                </label>
-                                <div className="mt-1">
-                                    <textarea
-                                        id="notes"
-                                        name="notes"
-                                        rows={3}
-                                        className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                                        value={formData.notes}
-                                        onChange={handleChange}
-                                    />
-                                </div>
                             </div>
                         </div>
-
-                        <div className="flex justify-end">
-                            <button
-                                type="button"
-                                onClick={() => navigate(-1)}
-                                className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary mr-3"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
-                            >
-                                {loading ? 'Création...' : 'Créer la demande'}
-                            </button>
+                        <div className="p-6 bg-white/5 border-t border-white/10 text-center">
+                            <p className="text-xs text-slate-400 mb-1">Total estimé</p>
+                            <p className="text-2xl font-bold">{formData.price ? `${new Intl.NumberFormat('fr-DZ').format(formData.price)} DZD` : '--'}</p>
                         </div>
-                    </form>
+                    </Card>
+
+                    <div className="p-8 bg-primary-50 rounded-[2.5rem] border border-primary-100 flex flex-col items-center text-center space-y-4">
+                        <div className="h-12 w-12 bg-primary-600 text-white rounded-2xl flex items-center justify-center shadow-lg transform rotate-6">
+                            <CheckCircle2 className="h-6 w-6" />
+                        </div>
+                        <h5 className="font-bold text-primary-900">Publiez en confiance</h5>
+                        <p className="text-xs text-primary-700/70 font-medium leading-relaxed">
+                            Votre demande sera visible par des centaines de transporteurs certifiés dans toute l'Algérie.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

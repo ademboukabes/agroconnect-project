@@ -96,12 +96,7 @@ export const updateTransporterProfileController = async (req, res) => {
 // @access  Private (Transporter only)
 export const toggleTransporterAvailability = async (req, res) => {
     try {
-        console.log('🔧 Toggle Availability - User ID:', req.user.id);
-        console.log('🔧 Toggle Availability - User Role:', req.user.role);
-
         const user = await toggleAvailability(req.user.id);
-
-        console.log('✅ Toggle Success - New availability:', user.transporterProfile?.isAvailable);
 
         res.status(200).json({
             success: true,
@@ -111,9 +106,7 @@ export const toggleTransporterAvailability = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ Toggle Availability Error:', error);
-        console.error('❌ Error message:', error.message);
-        console.error('❌ Error stack:', error.stack);
+        console.error('Toggle Availability Error:', error.message);
 
         const statusCode = error.message.includes('Seuls') ? 403 : 500;
         res.status(statusCode).json({

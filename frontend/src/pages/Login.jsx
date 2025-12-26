@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Truck, ArrowRight, Mail, Lock } from 'lucide-react';
+import { Truck, ArrowRight, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { Card, CardBody } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -25,108 +28,120 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-primary-dark/10 via-background to-secondary-light/10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="flex justify-center">
-                    <div className="h-16 w-16 bg-gradient-to-tr from-primary to-secondary rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-all duration-300">
-                        <Truck className="h-8 w-8 text-white" />
-                    </div>
-                </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-                    Bienvenue sur SELA3LII
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    La plateforme logistique pour l'agriculture
-                </p>
+        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-100/40 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-100/40 rounded-full blur-[120px]" />
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white/80 backdrop-blur-lg py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-white/50">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        {error && (
-                            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-md text-sm animate-pulse">
-                                <p className="font-medium">Erreur de connexion</p>
-                                <p>{error}</p>
-                            </div>
-                        )}
+            <div className="w-full max-w-[1100px] grid lg:grid-cols-2 gap-12 items-center relative z-10">
+                {/* Left Side: Branding & Info */}
+                <div className="hidden lg:flex flex-col space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary-600 p-3 rounded-2xl text-white shadow-xl shadow-primary-200">
+                            <Truck className="h-8 w-8" />
+                        </div>
+                        <span className="text-3xl font-bold tracking-tight text-slate-900">AgroConnect</span>
+                    </div>
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                Adresse Email
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
+                    <div className="space-y-4">
+                        <h1 className="text-5xl font-bold text-slate-900 leading-[1.1]">
+                            La logistique agricole, <br />
+                            <span className="text-primary-600 font-display italic">réinventée.</span>
+                        </h1>
+                        <p className="text-lg text-slate-500 font-medium max-w-md leading-relaxed">
+                            Connectez-vous pour gérer vos expéditions, suivre vos livraisons en temps réel et optimiser votre chaîne logistique.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 pt-4">
+                        <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div className="h-10 w-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-3">
+                                <ShieldCheck className="h-5 w-5" />
+                            </div>
+                            <h4 className="font-bold text-slate-900 mb-1">Sécurisé</h4>
+                            <p className="text-xs text-slate-500 font-medium">Vos données et transactions sont protégées.</p>
+                        </div>
+                        <div className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div className="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3">
+                                <Truck className="h-5 w-5" />
+                            </div>
+                            <h4 className="font-bold text-slate-900 mb-1">Temps Réel</h4>
+                            <p className="text-xs text-slate-500 font-medium">Suivi GPS interactif pour chaque trajet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Side: Login Form */}
+                <div className="flex justify-center animate-in fade-in slide-in-from-right-8 duration-700">
+                    <Card className="w-full max-w-md !rounded-[2.5rem] border-none shadow-2xl overflow-hidden">
+                        <CardBody className="p-10 sm:p-12">
+                            <div className="mb-10 lg:hidden flex flex-col items-center">
+                                <div className="bg-primary-600 p-3 rounded-2xl text-white shadow-lg mb-4">
+                                    <Truck className="h-6 w-6" />
                                 </div>
-                                <input
-                                    id="email"
-                                    name="email"
+                                <h1 className="text-2xl font-bold">AgroConnect</h1>
+                            </div>
+
+                            <div className="mb-10 text-center lg:text-left">
+                                <h2 className="text-3xl font-bold text-slate-900 mb-2">Connexion</h2>
+                                <p className="text-slate-500 font-medium text-sm">Bon retour ! Veuillez saisir vos identifiants.</p>
+                            </div>
+
+                            <form className="space-y-6" onSubmit={handleSubmit}>
+                                {error && (
+                                    <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold flex items-center gap-3 animate-shake">
+                                        <Lock className="h-4 w-4" />
+                                        {error}
+                                    </div>
+                                )}
+
+                                <Input
+                                    label="Adresse e-mail"
                                     type="email"
-                                    autoComplete="email"
+                                    placeholder="nom@exemple.com"
                                     required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors"
-                                    placeholder="vous@exemple.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
-                            </div>
-                        </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                                Mot de passe
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
+                                <Input
+                                    label="Mot de passe"
                                     type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors"
                                     placeholder="••••••••"
+                                    required
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
-                            </div>
-                        </div>
 
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {isLoading ? 'Connexion en cours...' : 'Se connecter'}
-                            </button>
-                        </div>
-                    </form>
+                                <div className="flex items-center justify-between text-sm">
+                                    <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-600">
+                                        <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600" />
+                                        Se souvenir
+                                    </label>
+                                    <a href="#" className="font-bold text-primary-600 hover:text-primary-700">Oublié ?</a>
+                                </div>
 
-                    <div className="mt-8">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-gray-500 rounded-full">
-                                    Nouveau sur la plateforme ?
-                                </span>
-                            </div>
-                        </div>
+                                <Button
+                                    type="submit"
+                                    className="w-full h-14 text-lg"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Connexion...' : 'Se connecter'}
+                                </Button>
+                            </form>
 
-                        <div className="mt-6">
-                            <Link
-                                to="/register"
-                                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors group"
-                            >
-                                Créer un compte
-                                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </div>
-                    </div>
+                            <div className="mt-10 pt-10 border-t border-slate-100 text-center">
+                                <p className="text-slate-500 font-medium">
+                                    Pas encore de compte ?{' '}
+                                    <Link to="/register" className="text-primary-600 font-bold hover:underline inline-flex items-center gap-1 active:scale-95 transition-transform">
+                                        Créer un compte <ArrowRight className="h-4 w-4" />
+                                    </Link>
+                                </p>
+                            </div>
+                        </CardBody>
+                    </Card>
                 </div>
             </div>
         </div>

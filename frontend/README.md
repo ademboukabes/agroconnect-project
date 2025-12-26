@@ -1,16 +1,52 @@
-# React + Vite
+# Frontend AgroConnect
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application React pour la plateforme de transport agricole.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19
+- Vite
+- React Router 7
+- Tailwind CSS
+- Leaflet / React-Leaflet
+- Socket.io-client
 
-## React Compiler
+## Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── assets/      # Images et ressources
+├── components/  # Composants réutilisables
+├── context/     # Contextes React (Auth, etc.)
+├── layouts/     # Layouts de pages
+├── pages/       # Pages de l'application
+└── services/    # Services API
+```
 
-## Expanding the ESLint configuration
+## Scripts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev      # Serveur de développement
+npm run build    # Build de production
+npm run preview  # Prévisualisation du build
+npm run lint     # Vérification ESLint
+```
+
+## Configuration
+
+L'API backend est configurée par défaut sur `http://localhost:3000`.
+
+Pour modifier l'URL de l'API, créer un fichier `.env` :
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+## Pages
+
+- `/` - Accueil
+- `/login` - Connexion
+- `/register` - Inscription
+- `/dashboard` - Tableau de bord client
+- `/transporter` - Tableau de bord transporteur
+- `/shipments` - Liste des expéditions
+- `/tracking/:id` - Suivi en temps réel

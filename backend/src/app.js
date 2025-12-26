@@ -9,21 +9,10 @@ import ratingRoutes from './modules/ratings/rating.routes.js';
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Debug middleware (à retirer en production)
-app.use((req, res, next) => {
-    console.log('📨 Request:', {
-        method: req.method,
-        url: req.url,
-        contentType: req.get('Content-Type'),
-        body: req.body
-    });
-    next();
-});
 
 // Routes
 app.use('/api/auth', authRoutes);

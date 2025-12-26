@@ -77,46 +77,30 @@ export const getTransporterShipments = async (transporterId, status = null) => {
  * Obtenir les demandes disponibles pour les transporteurs
  */
 export const getAvailableShipments = async (transporterId) => {
-    console.log('🔍 getAvailableShipments called for transporter:', transporterId);
-
-    // Vérifier que le transporteur est disponible
     const transporter = await User.findById(transporterId);
-    console.log('👤 Transporter found:', transporter ? 'Yes' : 'No');
-    console.log('👤 Transporter role:', transporter?.role);
-    console.log('👤 Transporter isAvailable:', transporter?.transporterProfile?.isAvailable);
 
     if (!transporter || transporter.role !== 'transporter') {
-        console.error('❌ Transporteur non trouvé ou rôle incorrect');
         throw new Error('Transporteur non trouvé');
     }
 
-    // Si le transporteur n'est pas disponible, retourner un tableau vide
     if (!transporter.transporterProfile?.isAvailable) {
-        console.warn('⚠️ Transporteur non disponible, retour tableau vide');
         return [];
     }
 
-    // Récupérer les véhicules du transporteur
     const vehicles = await Vehicle.find({
         transporter: transporterId,
         isAvailable: true
     });
-    console.log('🚛 Vehicles found:', vehicles.length);
 
     if (vehicles.length === 0) {
-        console.warn('⚠️ Aucun véhicule disponible, retour tableau vide');
         return [];
     }
 
-    // Trouver les demandes en attente
     const shipments = await Shipment.find({
         status: 'pending'
     })
         .populate('client', 'name phone address clientProfile')
         .sort({ createdAt: -1 });
-
-    console.log('📦 Pending shipments found:', shipments.length);
-    console.log('📦 Shipments:', shipments.map(s => ({ id: s._id, productType: s.productType, status: s.status })));
 
     return shipments;
 };
@@ -347,7 +331,7 @@ const updateDriverRating = async (transporterId) => {
             });
 
             await user.save();
-            console.log(`✅ AI Rating updated for driver ${transporterId}: ${aiResult.overall_rating}`);
+            console.log(`AI Rating updated for driver ${transporterId}: ${aiResult.overall_rating}`);
         }
     } catch (error) {
         console.error('Error updating driver rating:', error);

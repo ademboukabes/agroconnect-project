@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Truck, ArrowRight, User, Mail, Lock, Phone, FileText, Briefcase } from 'lucide-react';
+import { Truck, ArrowRight, User, Mail, Lock, Phone, FileText, Briefcase, ShieldCheck, Check } from 'lucide-react';
+import { Card, CardBody } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Input, Select } from '../components/ui/Input';
+import { Badge } from '../components/ui/Badge';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -32,219 +36,216 @@ const Register = () => {
         }
     };
 
+    const roles = [
+        { id: 'user', title: 'Client', description: 'Agriculteur ou Entreprise', icon: User },
+        { id: 'transporter', title: 'Transporteur', description: 'Partenaire de transport', icon: Truck },
+    ];
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-primary-dark/10 via-background to-secondary-light/10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="flex justify-center">
-                    <div className="h-16 w-16 bg-gradient-to-tr from-primary to-secondary rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-all duration-300">
-                        <Truck className="h-8 w-8 text-white" />
-                    </div>
-                </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-                    Créer un compte
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    Rejoignez la communauté SELA3LII
-                </p>
+        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-100/40 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 rounded-full blur-[120px]" />
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white/80 backdrop-blur-lg py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-white/50">
-                    <form className="space-y-5" onSubmit={handleSubmit}>
-                        {error && (
-                            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-md text-sm animate-pulse">
-                                <p className="font-medium">Erreur</p>
-                                <p>{error}</p>
-                            </div>
-                        )}
+            <div className="w-full max-w-[1200px] grid lg:grid-cols-2 gap-12 items-start relative z-10">
+                {/* Left Side: Onboarding Content */}
+                <div className="hidden lg:flex flex-col space-y-10 py-12 animate-in fade-in slide-in-from-left-8 duration-700">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary-600 p-3 rounded-2xl text-white shadow-xl">
+                            <Truck className="h-8 w-8" />
+                        </div>
+                        <span className="text-3xl font-bold tracking-tight text-slate-900">AgroConnect</span>
+                    </div>
 
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                                Nom complet
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-gray-400" />
+                    <div className="space-y-6">
+                        <h1 className="text-5xl font-bold text-slate-900 leading-[1.1]">
+                            Prêt à optimiser votre <br />
+                            <span className="text-primary-600 font-display italic">chaîne logistique ?</span>
+                        </h1>
+                        <p className="text-lg text-slate-500 font-medium max-w-md leading-relaxed">
+                            Rejoignez la plus grande communauté logistique dédiée à l'agriculture en Algérie.
+                        </p>
+                    </div>
+
+                    <div className="space-y-6">
+                        {[
+                            { title: 'Inscription Gratuite', icon: Check, color: 'emerald' },
+                            { title: 'Validation Rapide', icon: Check, color: 'emerald' },
+                            { title: 'Support 24/7', icon: Check, color: 'emerald' },
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center gap-4">
+                                <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <item.icon className="h-4 w-4" />
                                 </div>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors"
-                                    placeholder="Jean Dupont"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                />
+                                <span className="text-slate-700 font-bold">{item.title}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Card className="!rounded-3xl border-none shadow-xl bg-slate-900 text-white p-8 max-w-sm">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="h-12 w-12 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center">
+                                <ShieldCheck className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold">Confiance & Sécurité</h4>
+                                <p className="text-xs text-slate-400 font-medium">Certification de nos membres</p>
                             </div>
                         </div>
+                        <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                            Chaque transporteur est rigoureusement vérifié pour garantir une sécurité maximale à nos utilisateurs.
+                        </p>
+                    </Card>
+                </div>
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                Email
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors"
-                                    placeholder="vous@exemple.com"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
+                {/* Right Side: Registration Form */}
+                <div className="flex justify-center animate-in fade-in slide-in-from-right-8 duration-700">
+                    <Card className="w-full max-w-xl !rounded-[2.5rem] border-none shadow-2xl overflow-hidden">
+                        <CardBody className="p-8 sm:p-12">
+                            <div className="mb-10 text-center lg:text-left">
+                                <h2 className="text-3xl font-bold text-slate-900 mb-2">Créer un compte</h2>
+                                <p className="text-slate-500 font-medium text-sm">Veuillez remplir vos informations pour commencer.</p>
                             </div>
-                        </div>
 
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                                Téléphone
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Phone className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="phone"
-                                    name="phone"
-                                    type="tel"
-                                    required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors"
-                                    placeholder="05 55 ..."
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                />
-                            </div>
-                        </div>
+                            <form className="space-y-8" onSubmit={handleSubmit}>
+                                {error && (
+                                    <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold flex items-center gap-3 animate-shake">
+                                        <Lock className="h-4 w-4" />
+                                        {error}
+                                    </div>
+                                )}
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                                Mot de passe
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors"
-                                    placeholder="••••••••"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                                Je suis
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Briefcase className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <select
-                                    id="role"
-                                    name="role"
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3 transition-colors bg-white"
-                                    value={formData.role}
-                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                >
-                                    <option value="user">Client (Agriculteur/Entreprise)</option>
-                                    <option value="transporter">Transporteur</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {formData.role === 'transporter' && (
-                            <div className="bg-gray-50 p-4 rounded-xl space-y-4 border border-gray-100 animate-fadeIn">
-                                <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-                                    <Truck className="h-4 w-4 mr-2 text-primary" />
-                                    Informations Transporteur
-                                </h4>
-                                <div>
-                                    <label htmlFor="licenseNumber" className="block text-xs font-medium text-gray-500 mb-1">
-                                        Numéro de permis
-                                    </label>
-                                    <div className="relative rounded-md shadow-sm">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <FileText className="h-4 w-4 text-gray-400" />
-                                        </div>
-                                        <input
-                                            id="licenseNumber"
-                                            name="licenseNumber"
-                                            type="text"
-                                            required
-                                            className="focus:ring-primary focus:border-primary block w-full pl-9 sm:text-sm border-gray-300 rounded-lg py-2"
-                                            placeholder="Numéro de permis"
-                                            value={formData.licenseNumber}
-                                            onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
-                                        />
+                                {/* Role Selection */}
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold text-slate-700 ml-1">Je souhaite m'inscrire en tant que :</label>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {roles.map((role) => (
+                                            <button
+                                                key={role.id}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, role: role.id })}
+                                                className={`p-4 rounded-2xl border-2 transition-all duration-300 text-left relative group ${formData.role === role.id
+                                                    ? 'border-primary-500 bg-primary-50/50 shadow-sm'
+                                                    : 'border-slate-100 hover:border-slate-300 bg-white'
+                                                    }`}
+                                            >
+                                                <div className={`h-10 w-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${formData.role === role.id ? 'bg-primary-500 text-white' : 'bg-slate-50 text-slate-400 group-hover:text-primary-500'
+                                                    }`}>
+                                                    <role.icon className="h-5 w-5" />
+                                                </div>
+                                                <h4 className={`font-bold text-sm ${formData.role === role.id ? 'text-primary-600' : 'text-slate-900'}`}>{role.title}</h4>
+                                                <p className="text-[10px] text-slate-500 font-medium">{role.description}</p>
+                                                {formData.role === role.id && (
+                                                    <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-0.5">
+                                                        <Check className="h-3 w-3" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label htmlFor="licenseType" className="block text-xs font-medium text-gray-500 mb-1">
-                                        Type de permis
-                                    </label>
-                                    <select
-                                        id="licenseType"
-                                        name="licenseType"
-                                        className="focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-lg py-2"
-                                        value={formData.licenseType}
-                                        onChange={(e) => setFormData({ ...formData, licenseType: e.target.value })}
-                                    >
-                                        <option value="Permis B">Permis B (Véhicule léger)</option>
-                                        <option value="Permis C">Permis C (Poids lourd)</option>
-                                        <option value="Permis C1">Permis C1 (Petit poids lourd)</option>
-                                        <option value="Permis C2">Permis C2</option>
-                                        <option value="Permis D">Permis D (Transport en commun)</option>
-                                        <option value="Permis E">Permis E (Remorque)</option>
-                                    </select>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <Input
+                                        label="Nom complet"
+                                        placeholder="Ahmed Ben Ali"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="bg-slate-50/50"
+                                    />
+                                    <Input
+                                        label="Numéro de téléphone"
+                                        placeholder="05 55 55 55 55"
+                                        required
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        className="bg-slate-50/50"
+                                    />
                                 </div>
-                            </div>
-                        )}
 
-                        <div className="pt-2">
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {isLoading ? 'Inscription...' : 'S\'inscrire'}
-                            </button>
-                        </div>
-                    </form>
+                                <Input
+                                    label="Adresse e-mail"
+                                    type="email"
+                                    placeholder="nom@exemple.com"
+                                    required
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="bg-slate-50/50"
+                                />
 
-                    <div className="mt-8">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-gray-500 rounded-full">
-                                    Déjà un compte ?
-                                </span>
-                            </div>
-                        </div>
+                                <Input
+                                    label="Mot de passe"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    required
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="bg-slate-50/50"
+                                />
 
-                        <div className="mt-6">
-                            <Link
-                                to="/login"
-                                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors group"
-                            >
-                                Se connecter
-                                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </div>
-                    </div>
+                                {formData.role === 'transporter' && (
+                                    <div className="p-6 bg-slate-50/80 rounded-[2rem] border border-slate-100 space-y-6 animate-in slide-in-from-top-4 duration-500">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                                                <Truck className="h-4 w-4 text-primary-600" />
+                                                Profil Professionnel
+                                            </h4>
+                                            <Badge variant="primary">Transporteur</Badge>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <Input
+                                                label="Numéro de permis"
+                                                placeholder="N° de licence"
+                                                required
+                                                value={formData.licenseNumber}
+                                                onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                                                className="bg-white"
+                                            />
+                                            <Select
+                                                label="Type de permis"
+                                                value={formData.licenseType}
+                                                onChange={(e) => setFormData({ ...formData, licenseType: e.target.value })}
+                                                options={[
+                                                    { value: 'Permis B', label: 'Permis B (Léger)' },
+                                                    { value: 'Permis C', label: 'Permis C (Poids Lourd)' },
+                                                    { value: 'Permis C1', label: 'Permis C1 (Moyen)' },
+                                                    { value: 'Permis D', label: 'Permis D (Bus)' },
+                                                    { value: 'Permis E', label: 'Permis E (Remorque)' },
+                                                ]}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-4 pt-2">
+                                    <Button
+                                        type="submit"
+                                        className="w-full h-14 text-lg"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? 'Inscription...' : "C'est parti !"}
+                                    </Button>
+
+                                    <p className="text-[10px] text-slate-400 text-center px-6">
+                                        En vous inscrivant, vous acceptez nos <a href="#" className="underline">Conditions d'Utilisation</a> et notre <a href="#" className="underline">Politique de Confidentialité</a>.
+                                    </p>
+                                </div>
+
+                                <div className="pt-8 border-t border-slate-100 text-center">
+                                    <p className="text-slate-500 font-medium text-sm">
+                                        Déjà un compte ?{' '}
+                                        <Link to="/login" className="text-primary-600 font-bold hover:underline inline-flex items-center gap-1 active:scale-95 transition-transform">
+                                            Se connecter <ArrowRight className="h-4 w-4" />
+                                        </Link>
+                                    </p>
+                                </div>
+                            </form>
+                        </CardBody>
+                    </Card>
                 </div>
             </div>
         </div>
