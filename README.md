@@ -51,7 +51,7 @@ agroconnect-project/
 ├── ai-service/        # Service Python pour le rating IA
 │   ├── main.py
 │   └── requirements.txt
-└── docs/              # Documentation technique
+
 ```
 
 ## Installation
