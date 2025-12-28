@@ -126,7 +126,7 @@ python -m uvicorn main:app --reload --port 8000
 
 ## Auteur
 
-Développé pour le hackathon AgroTech 2024.
+Développé pour le hackathon Makers 2025.
 
 ## Licence
 
