@@ -8,7 +8,6 @@ Application React pour la plateforme de transport agricole.
 - Vite
 - React Router 7
 - Tailwind CSS
-- Leaflet / React-Leaflet
 - Socket.io-client
 
 ## Structure
@@ -49,4 +48,3 @@ VITE_API_URL=http://localhost:3000
 - `/dashboard` - Tableau de bord client
 - `/transporter` - Tableau de bord transporteur
 - `/shipments` - Liste des expéditions
-- `/tracking/:id` - Suivi en temps réel

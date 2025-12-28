@@ -1,9 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import TrackingMap from '../components/TrackingMap';
-import { ArrowLeft, MapPin, Package, Truck, Clock, AlertCircle, CheckCircle, Navigation, Phone, FileText, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Package, Truck, Clock, AlertCircle, CheckCircle, Phone, Star } from 'lucide-react';
 
 const ShipmentDetails = () => {
     const { id } = useParams();
@@ -12,7 +7,6 @@ const ShipmentDetails = () => {
     const [shipment, setShipment] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [simulating, setSimulating] = useState(false);
     const [revealedPhone, setRevealedPhone] = useState(false);
 
     const formatPrice = (price) => {
@@ -69,32 +63,6 @@ const ShipmentDetails = () => {
         }
     };
 
-    const simulateMovement = async () => {
-        if (simulating) return;
-        setSimulating(true);
-        const path = [
-            [2.8277, 36.4703], // Blida
-            [2.9000, 36.5500],
-            [2.9800, 36.6800],
-            [3.0588, 36.7538]  // Alger
-        ];
-        for (const [lng, lat] of path) {
-            try {
-                await api.post(`/tracking/${id}/update`, {
-                    longitude: lng,
-                    latitude: lat,
-                    speed: 60 + Math.random() * 20,
-                    heading: 45
-                });
-                await new Promise(r => setTimeout(r, 2000));
-            } catch (err) {
-                console.error('Erreur simulation', err);
-            }
-        }
-        setSimulating(false);
-        alert('Simulation terminée');
-    };
-
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -111,7 +79,6 @@ const ShipmentDetails = () => {
 
     const isClient = user?.role === 'user';
     const isTransporter = user?.role === 'transporter';
-    const canTrack = ['in_transit', 'delivered'].includes(shipment.status);
 
     const getStatusStep = (status) => {
         switch (status) {
@@ -265,30 +232,6 @@ const ShipmentDetails = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Map Section */}
-                    {canTrack && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-                                <h2 className="text-lg font-bold text-gray-900 flex items-center">
-                                    <Navigation className="h-5 w-5 mr-2 text-primary" />
-                                    Suivi GPS
-                                </h2>
-                                <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full animate-pulse">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
-                                    En direct
-                                </span>
-                            </div>
-                            <div className="h-96 w-full">
-                                <TrackingMap
-                                    shipmentId={shipment._id}
-                                    initialLocation={shipment.currentLocation}
-                                    pickup={shipment.pickup.location}
-                                    delivery={shipment.delivery.location}
-                                />
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Sidebar (Right Column) */}
@@ -373,8 +316,8 @@ const ShipmentDetails = () => {
                                         <button
                                             onClick={() => setRevealedPhone(!revealedPhone)}
                                             className={`w-full py-3 px-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] flex items-center justify-center ${revealedPhone
-                                                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-200'
-                                                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-gray-50'
+                                                ? 'bg-blue-100 text-blue-800 border-2 border-blue-200'
+                                                : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-gray-50'
                                                 }`}
                                         >
                                             <Phone className="h-5 w-5 mr-2" />
@@ -401,24 +344,6 @@ const ShipmentDetails = () => {
                                             className="w-full py-3 px-4 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-600/30 hover:bg-green-700 transition-all transform hover:scale-[1.02]"
                                         >
                                             Confirmer la livraison
-                                        </button>
-
-                                        <button
-                                            onClick={simulateMovement}
-                                            disabled={simulating}
-                                            className="w-full py-3 px-4 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center"
-                                        >
-                                            {simulating ? (
-                                                <>
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700 mr-2"></div>
-                                                    Simulation...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Navigation className="h-4 w-4 mr-2" />
-                                                    Simuler GPS
-                                                </>
-                                            )}
                                         </button>
                                     </>
                                 )}

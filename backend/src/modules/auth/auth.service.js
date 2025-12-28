@@ -7,35 +7,29 @@ import User from '../users/user.model.js';
  */
 
 /**
- * Génère un token JWT pour un utilisateur
- * @param {String} userId - L'ID de l'utilisateur
- * @returns {String} Token JWT
+ * Génère un token JWT
  */
 export const generateToken = (userId) => {
     return jwt.sign(
         { id: userId },
-        process.env.JWT_SECRET || 'supersecretkey123',
+        process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRE || '30d' }
     );
 };
 
 /**
  * Vérifie un token JWT
- * @param {String} token - Le token à vérifier
- * @returns {Object} Données décodées du token
  */
 export const verifyToken = (token) => {
     try {
-        return jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey123');
+        return jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
         throw new Error('Token invalide');
     }
 };
 
 /**
- * Crée un nouvel utilisateur
- * @param {Object} userData - Données de l'utilisateur
- * @returns {Object} Utilisateur créé et token
+ * Inscription d'un nouvel utilisateur
  */
 export const registerUser = async (userData) => {
     const { name, email, password, role, phone, transporterProfile } = userData;

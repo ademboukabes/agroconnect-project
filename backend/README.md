@@ -20,7 +20,6 @@ src/
 │   ├── users/       # Gestion des profils
 │   ├── shipments/   # Gestion des expéditions
 │   ├── transport/   # Gestion des véhicules
-│   ├── tracking/    # Suivi GPS
 │   ├── ratings/     # Notations
 │   └── orders/      # Commandes
 ├── services/        # Socket.io, AI rating
@@ -63,7 +62,3 @@ npm start      # Production
 ### Vehicles
 - `GET /api/vehicles` - Liste des véhicules
 - `POST /api/vehicles` - Ajouter un véhicule
-
-### Tracking
-- `GET /api/tracking/:shipmentId` - Historique de tracking
-- `POST /api/tracking/:shipmentId/update` - Mise à jour position GPS

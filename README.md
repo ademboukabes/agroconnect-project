@@ -6,7 +6,6 @@ Plateforme de mise en relation entre agriculteurs et transporteurs en Algérie. 
 
 - Gestion des utilisateurs (clients et transporteurs)
 - Création et gestion des demandes de transport
-- Suivi GPS en temps réel via WebSocket
 - Système de notation des chauffeurs avec IA
 - Gestion de flotte de véhicules
 - Estimation de prix automatique
@@ -124,8 +123,6 @@ python -m uvicorn main:app --reload --port 8000
 | POST | /api/shipments | Créer une expédition |
 | PUT | /api/shipments/:id/accept | Accepter une expédition |
 | GET | /api/tracking/:id | Suivi d'une expédition |
-
-Pour le tracking en temps réel, voir [docs/REALTIME_TRACKING.md](docs/REALTIME_TRACKING.md)
 
 ## Auteur
 

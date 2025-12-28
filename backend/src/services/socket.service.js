@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../modules/users/user.model.js';
 
 /**
- * Configuration de Socket.io pour le tracking en temps réel
+ * Configuration de Socket.io pour les notifications en temps réel
  */
 
 let io;
@@ -11,7 +11,7 @@ let io;
 export const initializeSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: "*", // En production, spécifiez votre domaine frontend
+            origin: "*",
             methods: ["GET", "POST"]
         }
     });
@@ -26,7 +26,7 @@ export const initializeSocket = (server) => {
             }
 
             // Vérifier le token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey123');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             // Récupérer l'utilisateur
             const user = await User.findById(decoded.id).select('-password');
@@ -46,18 +46,6 @@ export const initializeSocket = (server) => {
     io.on('connection', (socket) => {
         console.log(`Client connected: ${socket.user.name} (${socket.user.role})`);
 
-        // Rejoindre une room spécifique à l'expédition
-        socket.on('join-shipment', (shipmentId) => {
-            socket.join(`shipment-${shipmentId}`);
-            console.log(`${socket.user.name} joined shipment tracking ${shipmentId}`);
-        });
-
-        // Quitter une room
-        socket.on('leave-shipment', (shipmentId) => {
-            socket.leave(`shipment-${shipmentId}`);
-            console.log(`${socket.user.name} left shipment tracking ${shipmentId}`);
-        });
-
         socket.on('disconnect', () => {
             console.log(`Client disconnected: ${socket.user.name}`);
         });
@@ -67,41 +55,13 @@ export const initializeSocket = (server) => {
 };
 
 /**
- * Émettre une mise à jour de position en temps réel
- */
-export const emitLocationUpdate = (shipmentId, locationData) => {
-    if (io) {
-        io.to(`shipment-${shipmentId}`).emit('location-update', {
-            shipmentId,
-            location: locationData,
-            timestamp: new Date()
-        });
-        console.log(`Location updated for shipment ${shipmentId}`);
-    }
-};
-
-/**
  * Émettre un événement de statut
  */
 export const emitStatusUpdate = (shipmentId, statusData) => {
     if (io) {
-        io.to(`shipment-${shipmentId}`).emit('status-update', {
+        io.emit('status-update', {
             shipmentId,
             status: statusData,
-            timestamp: new Date()
-        });
-        console.log(`Status updated for shipment ${shipmentId}`);
-    }
-};
-
-/**
- * Émettre un événement personnalisé
- */
-export const emitEvent = (shipmentId, eventType, eventData) => {
-    if (io) {
-        io.to(`shipment-${shipmentId}`).emit(eventType, {
-            shipmentId,
-            data: eventData,
             timestamp: new Date()
         });
     }
