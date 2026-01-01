@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 
-# Initialize FastAPI
+# Initialize FastAPI  
 app = FastAPI(title="AgroConnect AI Service", version="2.0")
 
 # CORS middleware for Node.js backend
