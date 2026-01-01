@@ -155,7 +155,7 @@ def rate_driver(request: DriverRatingRequest):
     if overall_rating >= 85:
         category = "⭐ Excellence"
     elif overall_rating >= 75:
-        category = "✅ Très Bien"
+        category = " Très Bien"
     elif overall_rating >= 65:
         category = "👍 Bien"
     else:
