@@ -25,9 +25,9 @@ try:
     le_vehicule = joblib.load('encoder_vehicule.pkl')
     le_category = joblib.load('encoder_category.pkl')
     le_city = joblib.load('encoder_city.pkl')
-    print("✅ Models loaded successfully")
+    print(" Models loaded successfully")
 except Exception as e:
-    print(f"❌ Error loading models: {e}")
+    print(f" Error loading models: {e}")
     model = None
 
 # Data models
