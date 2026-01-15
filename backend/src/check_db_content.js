@@ -23,7 +23,7 @@ const checkDb = async () => {
 
         // Vérifier les véhicules
         const vehicles = await Vehicle.find({});
-        console.log(`\n🚛 VÉHICULES TROUVÉS : ${vehicles.length}`);
+        console.log(`\n VÉHICULES TROUVÉS : ${vehicles.length}`);
         if (vehicles.length > 0) {
             vehicles.forEach(v => {
                 console.log(`   - ${v.vehicleType} ${v.model} (${v.licensePlate})`);
@@ -42,7 +42,7 @@ const checkDb = async () => {
         console.log('\n Vérification terminée.');
         process.exit(0);
     } catch (error) {
-        console.error('❌ Erreur lors de la vérification :', error);
+        console.error(' Erreur lors de la vérification :', error);
         process.exit(1);
     }
 };
