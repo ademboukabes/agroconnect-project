@@ -10,11 +10,11 @@ const checkDb = async () => {
     try {
         console.log('Connexion à MongoDB...');
         await mongoose.connect(process.env.MONGO_URI);
-        console.log('✅ Connecté avec succès !\n');
+        console.log(' Connecté avec succès !\n');
 
         // Vérifier les utilisateurs
         const users = await User.find({});
-        console.log(`👤 UTILISATEURS TROUVÉS : ${users.length}`);
+        console.log(` UTILISATEURS TROUVÉS : ${users.length}`);
         if (users.length > 0) {
             users.forEach(u => {
                 console.log(`   - [${u.role.toUpperCase()}] ${u.name} (${u.email})`);
