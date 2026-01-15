@@ -32,14 +32,14 @@ const checkDb = async () => {
 
         // Vérifier les expéditions
         const shipments = await Shipment.find({});
-        console.log(`\n📦 EXPÉDITIONS TROUVÉES : ${shipments.length}`);
+        console.log(`\n EXPÉDITIONS TROUVÉES : ${shipments.length}`);
         if (shipments.length > 0) {
             shipments.forEach(s => {
                 console.log(`   - [${s.status}] ${s.productType} (${s.weight}t) : ${s.pickup.address} -> ${s.delivery.address}`);
             });
         }
 
-        console.log('\n✅ Vérification terminée.');
+        console.log('\n Vérification terminée.');
         process.exit(0);
     } catch (error) {
         console.error('❌ Erreur lors de la vérification :', error);
