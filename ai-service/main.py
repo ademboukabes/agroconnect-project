@@ -147,15 +147,16 @@ def rate_driver(request: DriverRatingRequest):
             "weight": trip.poids,
             "duration": trip.duree
         })
-    
+
     # Calculate overall rating
     overall_rating = round(sum(scores) / len(scores), 1)
     
-    # Performance category
-    if overall_rating >= 85:
-        category = " Excellence"
-    elif overall_rating >= 75:
+    # Performance
+    if overall_rating >= 75:
         category = " Très Bien"
+    elif overall_rating >= 85:
+        category = " Excellent"
+    
     elif overall_rating >= 65:
         category = " Bien"
     else:
